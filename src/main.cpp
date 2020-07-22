@@ -1,4 +1,5 @@
 /**
+ * https://favicon.io/
  * https://diyprojects.io/esp8266-web-server-part-4-arduinojson-load-save-files-spiffs/
  * https://github.com/me-no-dev/arduino-esp32fs-plugin
  * https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266WebServer/examples/FSBrowser/FSBrowser.ino

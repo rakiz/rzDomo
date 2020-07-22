@@ -5,7 +5,6 @@
 #include <ESP8266WebServer.h>   // Include the WebServer library
 #include "../network/RzTime.h"
 #include "../sensors/RzMetric.h"
-#include "../sensors/RzMetric.h"
 #include "../RzFiles.h"
 #include "RzTime.h"
 

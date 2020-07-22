@@ -1,20 +1,19 @@
 #include "Tools.h"
 
 String getContentType(String filename) {
-    if (filename.endsWith(".htm")) return "text/html";
-    else if (filename.endsWith(".html")) return "text/html";
-    else if (filename.endsWith(".css")) return "text/css";
-    else if (filename.endsWith(".js")) return "application/javascript";
-    else if (filename.endsWith(".png")) return "image/png";
-    else if (filename.endsWith(".gif")) return "image/gif";
-    else if (filename.endsWith(".jpg")) return "image/jpeg";
-    else if (filename.endsWith(".ico")) return "image/x-icon";
-    else if (filename.endsWith(".xml")) return "text/xml";
-    else if (filename.endsWith(".pdf")) return "application/x-pdf";
-    else if (filename.endsWith(".zip")) return "application/x-zip";
-    else if (filename.endsWith(".gz")) return "application/x-gzip";
-    else if (filename.endsWith(".json")) return "application/json";
-    return "text/plain";
+    if (filename.endsWith(".htm") || filename.endsWith(".html")) return CONTENT_TYPE_HTML;
+    if (filename.endsWith(".css")) return CONTENT_TYPE_CSS;
+    if (filename.endsWith(".js")) return CONTENT_TYPE_JAVASCRIPT;
+    if (filename.endsWith(".png")) return CONTENT_TYPE_PNG;
+    if (filename.endsWith(".gif")) return CONTENT_TYPE_GIF;
+    if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) return CONTENT_TYPE_JPEG;
+    if (filename.endsWith(".ico")) return CONTENT_TYPE_ICON;
+    if (filename.endsWith(".xml")) return CONTENT_TYPE_XML;
+    if (filename.endsWith(".pdf")) return CONTENT_TYPE_PDF;
+    if (filename.endsWith(".zip")) return CONTENT_TYPE_ZIP;
+    if (filename.endsWith(".gz")) return CONTENT_TYPE_GZIP;
+    if (filename.endsWith(".json")) return CONTENT_TYPE_JSON;
+    return CONTENT_TYPE_TEXT;
 }
 
 String formatBytes(size_t bytes) { // convert sizes in bytes to KB and MB
