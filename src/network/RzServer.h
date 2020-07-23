@@ -6,11 +6,12 @@
 #include "../network/RzTime.h"
 #include "../sensors/RzMetric.h"
 #include "../RzFiles.h"
+#include "../RzLoop.h"
 #include "RzTime.h"
 
 #define SRV_PORT 80
 
-class RzServer {
+class RzServer : public RzLoop {
 public:
     RzServer(int _port, RzTime *_myTime, RzFiles *_myFiles, RzMetric *_metric);
 
@@ -26,9 +27,9 @@ private:
 
     void handleMetrics();
 
-    void sendMetrics(MetricStruct *measures, int nb);
+    unsigned int sendMetrics();
 
-    void sendConfig();
+    unsigned int sendConfig();
 
     void handleVersion();
 

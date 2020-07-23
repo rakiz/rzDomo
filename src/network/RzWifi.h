@@ -1,7 +1,9 @@
 #ifndef _MYWIFI_H_
 #define _MYWIFI_H_
 
-class RzWifi {
+#include "../RzLoop.h"
+
+class RzWifi : public RzLoop {
 public:
     RzWifi(String _dnsName, String _credentials[], int _size);
 

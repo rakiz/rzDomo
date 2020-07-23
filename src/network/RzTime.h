@@ -3,8 +3,9 @@
 
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include "../RzLoop.h"
 
-class RzTime {
+class RzTime : public RzLoop {
 public:
     RzTime();
 

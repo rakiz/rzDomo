@@ -3,8 +3,9 @@
 
 #include <Arduino.h>
 #include <FS.h>   // Include the SPIFFS library
+#include "RzLoop.h"
 
-class RzFiles {
+class RzFiles : public RzLoop {
 public:
     void setup();
 

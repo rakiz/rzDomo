@@ -33,11 +33,7 @@ String WIFI_CREDENTIALS[] = {
         "Salusa-Secondus", "ledormeurdoitsereveiller"
 };
 
-RzWifi myWifi(DNS_NAME, WIFI_CREDENTIALS, 3);
-RzTime myTime;
-RzFiles myFiles;
-RzTemperature temp(&myTime, ONE_WIRE_PIN, 60 * 1000);
-RzServer myServer(80, &myTime, &myFiles, &temp);
+std::vector<RzLoop *> rzLoops;
 
 void setup() {
     Serial.begin(115200);
@@ -51,31 +47,46 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH); // turn the LED off (HIGH is the voltage level)
 
-    myWifi.setup();     // initilize wifi
-    myTime.setup();     // synchronize time
+    // Initialize the Wifi
+    RzWifi *myWifi = new RzWifi(DNS_NAME, WIFI_CREDENTIALS, 3);
+    rzLoops.push_back(myWifi);
+    myWifi->setup();
 
-    myFiles.setup();    // Start the SPI Flash Files System
-    temp.setup();       // initialize the thermometer
+    // Initialize the Time Synchronization (should be merged with wifi)
+    RzTime *myTime = new RzTime();
+    rzLoops.push_back(myTime);
+    myTime->setup();
 
+    // Initialize the SPI Flash Files System
+    RzFiles *myFiles = new RzFiles();
+    rzLoops.push_back(myFiles);
+    myFiles->setup();    // Start the SPI Flash Files System
 
-    myServer.setup();   // HTTP server
+    // Initialize the Thermometer
+    RzTemperature *temp = new RzTemperature(myTime, ONE_WIRE_PIN, 60 * 1000);
+    rzLoops.push_back(temp);
+    temp->setup();
+
+    // Initialize the Web server
+    RzServer *myServer = new RzServer(80, myTime, myFiles, temp);
+    rzLoops.push_back(myServer);
+    myServer->setup();
 
     uint32_t hfree;
     uint16_t hmax;
     uint8_t hfrag;
     ESP.getHeapStats(&hfree, &hmax, &hfrag);
-    Serial.printf("%d Free, %d max, %d Fragment.", hfree, hmax, hfrag);
+    Serial.printf("%d Free, %d max, %d Fragment.\r\n", hfree, hmax, hfrag);
 
     Serial.println();
-    delay(1000);    // just a bit of time to let asynchronous task to finish
-    Serial.println("Node is started.");
+    Serial.println("Node is started and ready to rumble.");
+    Serial.println();
 }
 
 // the loop function runs over and over again forever
 void loop() {
     unsigned long currentMillis = millis();
-    myWifi.loop(currentMillis);
-    myFiles.loop(currentMillis);
-    myServer.loop(currentMillis);
-    temp.loop(currentMillis);
+    for (unsigned int i(0); i < rzLoops.size(); ++i) {
+        rzLoops[i]->loop(currentMillis);
+    }
 }

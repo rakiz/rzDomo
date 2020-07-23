@@ -58,13 +58,13 @@ void RzTemperature::setup() {
     Serial.println();
 }
 
-void RzTemperature::loop(unsigned long currentMillis) {
+void RzTemperature::loop(unsigned long _currentMillis) {
     SamplingHandler func = [this]() -> float {
         sensors.requestTemperatures();
         return getTemperature(thermometer);
     };
 
-    float tempC = multisampling->sample(currentMillis, func);
+    float tempC = multisampling->sample(_currentMillis, func);
     if (tempC >= 0) {
         addValue(myTime->getEpochTime(), tempC);
         //Serial.print("DONE - Temp C: "); Serial.println(tempC);

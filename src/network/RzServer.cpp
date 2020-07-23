@@ -55,31 +55,32 @@ void RzServer::handleMetrics() {
 
     // check first if we need metrics configuration
     if (myServer->hasArg("config")) {
-        sendConfig();
+        unsigned int nb = sendConfig();
+        Serial.printf("%d metrics configuration sent\r\n", nb);
     } else {
-        MetricStruct *measures = myMetric->getValues();   // start from the beginning
-        int nb = myMetric->getSize();                     // number of value to return = size of array
-        if (myServer->hasArg("since")) {
-            // 'since' parameter contains the last timestamp the UI received
-            unsigned long timestamp = (unsigned long) atol(myServer->arg("since").c_str());
-            // so we discard all metrics before (or equal) that timestamp
-            for (int i = 0; i < myMetric->getSize() && measures->time <= timestamp; i++) {
-                measures++;
-                nb--;
-            }
-        } else if (myServer->hasArg("last")) {
-            // 'last' parameter contains the number of metrics the UI wants. It will return only these metrics
-            nb = min(nb, atoi(myServer->arg("last").c_str()));
-            measures = &(myMetric->getValues()[myMetric->getSize() - nb]);
-        }
-
-        sendMetrics(measures, nb);
+        unsigned int nb = sendMetrics();
         Serial.printf("%d metrics sent\r\n", nb);
     }
     myServer->chunkedResponseFinalize();
 }
 
-void RzServer::sendMetrics(MetricStruct *measures, int nb) {
+unsigned int RzServer::sendMetrics() {
+    MetricStruct *measures = myMetric->getValues();   // start from the beginning
+    int nb = myMetric->getSize();                     // number of value to return = size of array
+    if (myServer->hasArg("since")) {
+        // 'since' parameter contains the last timestamp the UI received
+        unsigned long timestamp = (unsigned long) atol(myServer->arg("since").c_str());
+        // so we discard all metrics before (or equal) that timestamp
+        for (int i = 0; i < myMetric->getSize() && measures->time <= timestamp; i++) {
+            measures++;
+            nb--;
+        }
+    } else if (myServer->hasArg("last")) {
+        // 'last' parameter contains the number of metrics the UI wants. It will return only these metrics
+        nb = min(nb, atoi(myServer->arg("last").c_str()));
+        measures = &(myMetric->getValues()[myMetric->getSize() - nb]);
+    }
+
     // use the same string for every line
     String output;
     output.reserve(64);
@@ -103,9 +104,11 @@ void RzServer::sendMetrics(MetricStruct *measures, int nb) {
     // send last string
     output += "]";
     myServer->sendContent(output);
+
+    return nb;
 }
 
-void RzServer::sendConfig() {
+unsigned int RzServer::sendConfig() {
     // use the same string for every line
     String output;
     output.reserve(64);
@@ -121,6 +124,7 @@ void RzServer::sendConfig() {
     // send last string
     output += "]";
     myServer->sendContent(output);
+    return 1; // number of metrics
 }
 
 //  /api/metrics -> JSON with metrics

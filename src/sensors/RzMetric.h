@@ -2,6 +2,7 @@
 #define _MY_METRIC_H_
 
 #include <Arduino.h>
+#include "../RzLoop.h"
 
 struct MetricStruct {
     unsigned long time;
@@ -19,7 +20,7 @@ struct MetricStruct {
 #define IGNORED_DIFFERENCE 0.2
 #define MAX_VALUES_TO_COMPARE 2
 
-class RzMetric {
+class RzMetric : public RzLoop {
 public:
     RzMetric();
 
@@ -34,7 +35,6 @@ public:
     int getSize() const;
 
     void addValue(unsigned long _time, float _value);
-
 
 protected:
     MetricStruct values[MAX_METRIC_VALUES];
