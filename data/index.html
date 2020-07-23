@@ -17,56 +17,45 @@
     </style>
 </head>
 <body>
-    <div class="siimple-navbar siimple-navbar--extra-large siimple-navbar--dark">
-        <a class="siimple-navbar-title" href="#">Piscine Monitoring</a>
+<div class="siimple-navbar siimple-navbar--extra-large siimple-navbar--dark siimple--clearfix">
+    <a class="siimple--float-left siimple-navbar-title" href="#">Piscine Monitoring</a>
+    <img class="siimple--float-right" src="https://badgen.net/badge/&copy;%20rakiz/2020.07/orange"
+         alt="rakiz - 2020.07"/>
+</div>
+<div class="siimple-jumbotron siimple-jumbotron--extra-large siimple-jumbotron--light">
+    <!-- -->
+    <div class="siimple-jumbotron-detail">
+        <a class="weatherwidget-io" href="https://forecast7.com/fr/45d704d88/venissieux/" data-label_1="VÉNISSIEUX"
+           data-label_2="Météo" data-theme="original">VÉNISSIEUX Météo</a>
+        <script>
+            !function (d, s, id) {
+                let js, fjs = d.getElementsByTagName(s)[0];
+                if (!d.getElementById(id)) {
+                    js = d.createElement(s);
+                    js.id = id;
+                    js.src = 'https://weatherwidget.io/js/widget.min.js';
+                    fjs.parentNode.insertBefore(js, fjs);
+                }
+            }(document, 'script', 'weatherwidget-io-js');
+        </script>
     </div>
-    <div class="siimple-jumbotron siimple-jumbotron--extra-large siimple-jumbotron--light">
-<!-- -->
-        <div class="siimple-jumbotron-detail">
-            <a class="weatherwidget-io" href="https://forecast7.com/fr/45d704d88/venissieux/" data-label_1="VÉNISSIEUX" data-label_2="Météo" data-theme="original" >VÉNISSIEUX Météo</a>
-            <script>
-                !function(d,s,id){let js, fjs = d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-            </script>
-        </div>
-<!-- -->
-    </div>
-    <div class="siimple-content siimple-content--extra-large">
-        <div class="siimple-grid">
-            <div class="siimple-grid-row">
-                <div class="siimple-h2">Température Piscine</div>
-                <canvas id="tempChart" height="100"></canvas>
-
-                <div class="siimple-grid-col siimple-grid-col--6">
-                    <div class="siimple-list siimple-list--hover" style="max-width:400px;">
-                    <div class="siimple-list-item">
-                        <span id="pool-time" class="siimple-tag siimple-tag--primary siimple-tag--rounded">samedi 14 juillet 2020, 20:19:02</span>
-                        Dernière mesure:
+    <!-- -->
+</div>
+<div class="siimple-content siimple-content--extra-large">
+    <div class="siimple-grid">
+        <div id="graphContainer" class="siimple-grid-row"></div> <!-- here we'll add charts! -->
+        <div class="siimple-rule"></div>
+        <div class="siimple-grid-row">
+            <div id="lastValuesContainer" class="siimple-list siimple-list--hover" style="max-width:550px;">
+                <!-- here we'll add last values! -->
+                <div class="siimple--clearfix">
+                    <div class="siimple--float-left siimple-h4">Dernières mesures:</div>
+                    <div class="siimple--float-right siimple-btn siimple-btn--primary siimple-btn--small"
+                         onclick="updateData()">Force refresh
                     </div>
-                    <div class="siimple-list-item">
-                        <span id="pool-temp" class="siimple-tag siimple-tag--primary siimple-tag--rounded">14</span>
-                        Température Piscine:
-                    </div>
-                    <div class="siimple-list-item">
-                        <span class="siimple-tag siimple-tag--primary siimple-tag--rounded">7.2</span>
-                        Potentiel Hydrogène:
-                    </div>
-                    <div class="siimple-list-item">
-                        <span class="siimple-tag siimple-tag--primary siimple-tag--rounded">125</span>
-                        Turbidité: 
-                    </div>
-
-                    <div class="siimple-btn siimple-btn--primary" onclick="updateData()">Force refresh</div>
-                    <div class="siimple-btn siimple-btn--primary" onclick="resetZoom()">Reset Chart</div>
-                </div>
-
-                <div class="siimple-grid-col siimple-grid-col--6">
                 </div>
             </div>
         </div>
-        <div class="siimple-rule"></div>
-    </div>
-    <div class="siimple-footer siimple-footer--extra-large">
-        <img src="https://badgen.net/badge/&copy;%20rakiz/2020.07/orange" alt="rakiz - 2020.07"/>
     </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
@@ -78,92 +67,136 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
 
 <script>
-    const dps = [];
-
-    moment.locale('fr');
-    const ctx = document.getElementById('tempChart');
-
-    const config = {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Temperature piscine',
-                fill: false,
-                lineTension: 0.1,
-                data: [],
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: false
-            },
-            tooltips: {
-                position: 'nearest',
-                mode: 'index',
-                intersect: false,
-            },
-            scales: {
-                xAxes: [{
-                    type: 'time',
-                    display: true,
-                    //time: {
-                    //    unit: 'hour',
-                    //},
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Date'
-                    },
-                    ticks: {
-                        major: {
-                            fontStyle: 'bold',
-                            fontColor: '#FF0000'
-                        }
-                    }
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: '°C'
-                    },
-                    ticks: {
-                        //suggestedMin: 10,
-                        //suggestedMax: 30,
-
-                        //min: 0,
-                        //max: 50,
-
-                        // forces step size to be 5 units
-                        //stepSize: 1
-                    }
-                }]
-            },
-            plugins: {
-                zoom: {
-                    pan: {
-                        enabled: true,
-                        mode: 'x',
-                        // On category scale, factor of pan velocity
-                        speed: 20,
-                        // Minimal pan distance required before actually applying pan
-                        threshold: 10,
-                    },
-                    zoom: {
-                        enabled: true,
-                        drag: false,
-                        mode: 'x',
-                        speed: 0.05,
-                    }
-                }
-            }
+    const serverAddress = ""; // "http://192.168.1.56";
+    window.onload = function () {
+        if (!window.fetch) {
+            alert("Update your browser!");
         }
-    };
-    const chart = new Chart(ctx, config);
+        moment.locale('fr');
+        initCharts();
+    }
 
-    function debug(str) {
-        if( console && console.debug ) {
-            console.debug(str);
+    let unit2charts = {};
+    let id2dataset = {};
+    let id2config = {};
+
+    function initCharts() {
+        const myHeaders = new Headers();
+        const myInit = {method: 'GET', headers: myHeaders, mode: 'cors', cache: 'default'};
+
+        const url = serverAddress + '/api/metrics?config';
+        info(url);
+        const myRequest = new Request(url, myInit);
+
+        fetch(myRequest).then(function (response) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                response.json().then(function (json) {
+                    if (json && Array.isArray(json) && json.length > 0) { // if json is not an array, we have nothing to process
+                        // [{"id":"tp","name":"Température Piscine","unit":"°C"}]
+                        for (let i = 0; i < json.length; i++) {
+                            let id = json[i].id;
+                            id2config[id] = json[i];
+                            let name = json[i].name;
+                            let unit = json[i].unit;
+                            // info("id=" + id + " name=" + name + " unit=" + unit);
+                            let curChart = unit2charts[unit];
+                            if (!curChart) {
+                                info("Creating new graph for: "+ name);
+                                document.getElementById("graphContainer").insertAdjacentHTML("beforeend", htmlGraph(json[i]));
+                                curChart = new Chart(document.getElementById('chart-' + unit), graphConf(json[i]));
+                                unit2charts[unit] = curChart;
+                                id2dataset[id] = curChart.data.datasets[0].data;
+                            } else {
+                                curChart.data.datasets.push({"data": []});
+                                id2dataset[id] = curChart.data.datasets[curChart.data.datasets.length - 1].data;
+                            }
+                            document.getElementById("lastValuesContainer").insertAdjacentHTML("beforeend", htmlLastMetrics(json[i]));
+                        }
+                    } else error("Nothing retrieved");
+                });
+            }
+        }).then(function () {
+            const updateInterval = 60 * 1000;
+            updateData();
+            setInterval(function () {
+                updateData()
+            }, updateInterval);
+
+        });
+    }
+
+    let latestTimestamp = 0;
+
+    function updateData() {
+        const myHeaders = new Headers();
+        const myInit = {method: 'GET', headers: myHeaders, mode: 'cors', cache: 'default'};
+
+        const url = serverAddress + '/api/metrics?since=' + latestTimestamp;
+        info(url);
+        const myRequest = new Request(url, myInit);
+
+        fetch(myRequest).then(function (response) {
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+                return response.json().then(function (json) {
+                    if (json && Array.isArray(json)) { // if json is not an array, we have nothing to process
+                        if (json.length > 0) {
+                            let lastValues = {};
+                            for (let i = 0; i < json.length; i++) {
+                                let time = json[i].ts;
+                                for (const key of Object.keys(json[i])) {
+                                    if (key !== "ts") {
+                                        lastValues[key] = {"time": time, "value": json[i][key]}; // { "tp" : { time: "jeudi", value : 18 } }
+                                        add2Dataset(id2dataset[key], time, json[i][key]);
+                                    }
+                                }
+                            }
+                            for (const key of Object.keys(unit2charts)) {
+                                //console.log(key + " -> " + unit2charts[key])
+                                unit2charts[key].update();
+                            }
+                            for (const key of Object.keys(lastValues)) {
+                                document.getElementById("lastDate-" + key).textContent = moment.unix(lastValues[key].time).format('dddd Do MMMM YYYY, HH:mm:ss');
+                                let conf = id2config[key];
+                                document.getElementById("lastValue-" + key).textContent = conf.name + ": " + lastValues[key].value + conf.unit;
+                            }
+                        }
+                    } else error("Nothing retrieved");
+                });
+            } else {
+                error("This is not the expected json: " + contentType);
+            }
+        });
+    }
+
+    function add2Dataset(dataset, ts, value) {
+        const str = ts2str(ts);
+        if (dataset.length === 0 || dataset[dataset.length - 1].x !== str) {
+            info("ADDED value: " + str + " - " + value);
+            latestTimestamp = latestTimestamp < ts ? ts : latestTimestamp;
+            dataset.push({x: str, y: value})
+        } else {
+            info("IGNORED value: " + str + " - " + value);
+        }
+        if (dataset.length > 256) {
+            dataset.shift();
+        }
+    }
+
+    function resetZoom(unit) {
+        unit2charts[unit].resetZoom();
+    }
+
+    function info(str) {
+        if (console && console.info) {
+            console.info(str);
+        }
+    }
+
+    function error(str) {
+        if (console && console.error) {
+            console.error(str);
         }
     }
 
@@ -171,66 +204,102 @@
         return moment.unix(timestamp).format(); //"YYYY-mm-DDTHH:mm:ssZ")
     }
 
-    let latestTimestamp = 0;
-    function addData(mychart, chartindex, ts, value) {
-        const c = mychart.data.datasets[chartindex].data;
-        const str = ts2str(ts);
-        if( c.length===0 || c[c.length-1].x !== str ) {
-            debug("ADDED value: " + str + " - " + value);
-            latestTimestamp = latestTimestamp<ts ? ts : latestTimestamp;
-            c.push({x:str, y: value})
-            mychart.update();
-        } else {
-            debug("IGNORED value: " + str + " - " + value);
-        }
-        if (c.length >  256 ) {
-            c.shift();
-        }
+    function htmlGraph(input) {
+        return `
+            <div class="siimple-grid-col siimple-grid-col--12">
+                <canvas id="chart-${input.unit}" height="100"></canvas>
+                <div class="siimple--float-right siimple-btn siimple-btn--error  siimple-btn--small" onclick="resetZoom('${input.unit}')">Reset Chart</div>
+            </div>
+        `;
     }
 
-    const updateInterval = 60 * 1000;
-    updateData();
-    setInterval(function(){updateData()}, updateInterval);
+    function htmlLastMetrics(input) {
+        return `
+            <div class="siimple-list-item siimple--clearfix">
+                <div id="lastDate-${input.id}" class="siimple--float-left"></div>
+                <div id="lastValue-${input.id}" class="siimple--float-right"></div>
+            </div>
+        `;
+    }
 
-    function updateData() {
-        if (window.fetch) {
-            const myHeaders = new Headers();
-            const myInit = {method: 'GET', headers: myHeaders, mode: 'cors', cache: 'default'};
-
-            const url = '/api/metrics?since=' + latestTimestamp; // http://192.168.1.56
-            debug(url);
-            const myRequest = new Request(url, myInit);
-
-            fetch(myRequest).then(function(response) {
-                const contentType = response.headers.get("content-type");
-                if(contentType && contentType.indexOf("application/json") !== -1) {
-                    return response.json().then(function(json) {
-                        if( json && Array.isArray(json) && json.length>0) { // if json is not an array, we have nothing to process
-                            let time;
-                            let temperature;
-                            for(let i=0; i<json.length; i++) {
-                                time = json[i].ts;
-                                temperature = json[i].tp;
-                                addData(chart, 0, time, temperature);
-                                chart.update();
+    function graphConf(input) {
+        return {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: input.name, // 'Temperature piscine',
+                    fill: false,
+                    lineTension: 0.1,
+                    //data: [],
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: false
+                },
+                tooltips: {
+                    position: 'nearest',
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        display: true,
+                        //time: {
+                        //    unit: 'hour',
+                        //},
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Date'
+                        },
+                        ticks: {
+                            major: {
+                                fontStyle: 'bold',
+                                fontColor: '#FF0000'
                             }
-                            document.getElementById("pool-time").textContent = moment.unix(time).format('dddd Do MMMM YYYY, HH:mm:ss');
-                            document.getElementById("pool-temp").textContent = temperature+"°C";
-                        } else debug("Nothing retrieved"); //alert(json); // traitement du JSON
-                    });
-                } else {
-                    debug("This is not the expected json: "+ contentType);
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: input.unit, // '°C'
+                        },
+                        ticks: {
+                            //suggestedMin: 10,
+                            //suggestedMax: 30,
+
+                            //min: 0,
+                            //max: 50,
+
+                            // forces step size to be 5 units
+                            //stepSize: 1
+                        }
+                    }]
+                },
+                plugins: {
+                    zoom: {
+                        pan: {
+                            enabled: true,
+                            mode: 'x',
+                            // On category scale, factor of pan velocity
+                            speed: 20,
+                            // Minimal pan distance required before actually applying pan
+                            threshold: 10,
+                        },
+                        zoom: {
+                            enabled: true,
+                            drag: false,
+                            mode: 'x',
+                            speed: 0.05,
+                        }
+                    }
                 }
-            });
-        } else {
-            alert("Update your browser!");
-        }
+            }
+        };
     }
-
-    function resetZoom() {
-        chart.resetZoom();
-    }
-
 </script>
 
 </html>
