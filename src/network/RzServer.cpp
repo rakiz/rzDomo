@@ -51,31 +51,41 @@ void RzServer::handleMetrics() {
         myServer->send(505, CONTENT_TYPE_HTML, F("HTTP1.1 required"));
         return;
     }
-
-    MetricStruct *measures = myMetric->getValues();   // start from the beginning
-    int nb = myMetric->getSize();                     // number of value to return = size of array
-    if (myServer->hasArg("since")) {
-        // 'since' parameter contains the last timestamp the UI received
-        unsigned long timestamp = (unsigned long) atol(myServer->arg("since").c_str());
-        // so we discard all metrics before (or equal) that timestamp
-        for (int i = 0; i < myMetric->getSize() && measures->time <= timestamp; i++) {
-            measures++;
-            nb--;
-        }
-    } else if (myServer->hasArg("last")) {
-        // 'last' parameter contains the number of metrics the UI wants. It will return only these metrics
-        nb = min(nb, atoi(myServer->arg("last").c_str()));
-        measures = &(myMetric->getValues()[myMetric->getSize() - nb]);
-    }
-
     myServer->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
 
+    // check first if we need metrics configuration
+    if (myServer->hasArg("config")) {
+        sendConfig();
+    } else {
+        MetricStruct *measures = myMetric->getValues();   // start from the beginning
+        int nb = myMetric->getSize();                     // number of value to return = size of array
+        if (myServer->hasArg("since")) {
+            // 'since' parameter contains the last timestamp the UI received
+            unsigned long timestamp = (unsigned long) atol(myServer->arg("since").c_str());
+            // so we discard all metrics before (or equal) that timestamp
+            for (int i = 0; i < myMetric->getSize() && measures->time <= timestamp; i++) {
+                measures++;
+                nb--;
+            }
+        } else if (myServer->hasArg("last")) {
+            // 'last' parameter contains the number of metrics the UI wants. It will return only these metrics
+            nb = min(nb, atoi(myServer->arg("last").c_str()));
+            measures = &(myMetric->getValues()[myMetric->getSize() - nb]);
+        }
+
+        sendMetrics(measures, nb);
+        Serial.printf("%d metrics sent\r\n", nb);
+    }
+    myServer->chunkedResponseFinalize();
+}
+
+void RzServer::sendMetrics(MetricStruct *measures, int nb) {
     // use the same string for every line
     String output;
     output.reserve(64);
     output = '[';
     for (int i = 0; i < nb; i++) {
-        if (output.length()>1) {
+        if (output.length() > 1) {
             // send string from previous iteration as an HTTP chunk
             myServer->sendContent(output);
             output = ',';
@@ -84,7 +94,7 @@ void RzServer::handleMetrics() {
         output += "{\"ts\":";
         output += measures->time;
         output += ",\"";
-        output += myMetric->getName();
+        output += myMetric->getId();
         output += "\":";
         output += measures->value;
         output += "}";
@@ -93,12 +103,25 @@ void RzServer::handleMetrics() {
     // send last string
     output += "]";
     myServer->sendContent(output);
-    myServer->chunkedResponseFinalize();
-
-    Serial.printf("%d metrics sent\r\n", nb);
 }
 
-
+void RzServer::sendConfig() {
+    // use the same string for every line
+    String output;
+    output.reserve(64);
+    output = '[';
+    // {"id":"tp", "name": "Température Pisicine", "unit": "°C"}
+    output += "{\"id\":\"";
+    output += myMetric->getId();
+    output += "\",\"name\":\"";
+    output += myMetric->getDisplayName();
+    output += "\",\"unit\":\"";
+    output += myMetric->getUnit();
+    output += "\"}";
+    // send last string
+    output += "]";
+    myServer->sendContent(output);
+}
 
 //  /api/metrics -> JSON with metrics
 //  / -> web page

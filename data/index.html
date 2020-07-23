@@ -197,7 +197,7 @@
             const myHeaders = new Headers();
             const myInit = {method: 'GET', headers: myHeaders, mode: 'cors', cache: 'default'};
 
-            const url = 'http://piscine/api/metrics?since=' + latestTimestamp;
+            const url = '/api/metrics?since=' + latestTimestamp; // http://192.168.1.56
             debug(url);
             const myRequest = new Request(url, myInit);
 
@@ -210,7 +210,7 @@
                             let temperature;
                             for(let i=0; i<json.length; i++) {
                                 time = json[i].ts;
-                                temperature = json[i].t;
+                                temperature = json[i].tp;
                                 addData(chart, 0, time, temperature);
                                 chart.update();
                             }

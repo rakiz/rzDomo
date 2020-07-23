@@ -17,12 +17,12 @@ RzTemperature::RzTemperature(RzTime *_myTime, uint8_t _pin, unsigned long _inter
     multisampling = new MultiSampling(14, 2, 25, _interval);
 
     // for debuggin without sensors pluged in !!
-    //addValue(1595320294, 25.34);
-    //addValue(1595323835, 25.55);
-    //addValue(1595327375, 25.78);
-    //addValue(1595330916, 25.88);
-    //addValue(1595337997, 26);
-    //addValue(1595349970, 26.13);
+    addValue(1595320294, 25.34);
+    addValue(1595323835, 25.55);
+    addValue(1595327375, 25.78);
+    addValue(1595330916, 25.88);
+    addValue(1595337997, 26);
+    addValue(1595349970, 26.13);
 
 }
 
@@ -72,9 +72,11 @@ void RzTemperature::loop(unsigned long currentMillis) {
 }
 
 
-String RzMetric::getName() const { return "t"; }
+String RzMetric::getId() const { return F("tp"); }
 
-String RzMetric::getUnit() const { return "celsius"; }
+String RzMetric::getDisplayName() const { return F("Température Piscine"); }
+
+String RzMetric::getUnit() const { return F("°C"); }
 
 float RzTemperature::getTemperature(DeviceAddress deviceAddress) {
     float tempC = sensors.getTempC(deviceAddress);

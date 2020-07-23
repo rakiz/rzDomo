@@ -23,7 +23,9 @@ class RzMetric {
 public:
     RzMetric();
 
-    virtual String getName() const;
+    virtual String getId() const;
+
+    virtual String getDisplayName() const;
 
     virtual String getUnit() const;
 
@@ -32,6 +34,7 @@ public:
     int getSize() const;
 
     void addValue(unsigned long _time, float _value);
+
 
 protected:
     MetricStruct values[MAX_METRIC_VALUES];

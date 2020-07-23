@@ -26,6 +26,10 @@ private:
 
     void handleMetrics();
 
+    void sendMetrics(MetricStruct *measures, int nb);
+
+    void sendConfig();
+
     void handleVersion();
 
 };

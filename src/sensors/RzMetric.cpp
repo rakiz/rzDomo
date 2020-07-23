@@ -11,18 +11,18 @@ RzMetric::RzMetric() {
 void RzMetric::addValue(unsigned long _time, float _value) {
     if (_time < MIN_TIMESTAMP) return;   // avoid dumb values
 
-    float localValue = (float) ((int)(_value * 100 + .5)) / 100;
+    float localValue = (float) ((int) (_value * 100 + .5)) / 100;
 
     int pos = size;
     if (!hasValueToBeAdded(_time, localValue)) {
-        Serial.printf("Replace previous value for '%s' with %.2f\r\n", getName().c_str(), localValue);
+        Serial.printf("Replace previous value for '%s' with %.2f\r\n", getDisplayName().c_str(), localValue);
         pos--;  // new value and previous ones are similar, let's keep only the latest
     } else {
         if (size < MAX_METRIC_VALUES) {
-            Serial.printf("Add value for '%s': %.2f\r\n", getName().c_str(), localValue);
+            Serial.printf("Add value for '%s': %.2f\r\n", getDisplayName().c_str(), localValue);
             size++; // there is still room for more measures
         } else {
-            Serial.printf("Make place to add value for '%s': %.2f\r\n", getName().c_str(), localValue);
+            Serial.printf("Make place to add value for '%s': %.2f\r\n", getDisplayName().c_str(), localValue);
             // there's no place anymore, let's move it all around
             for (int i = 0; i < MAX_METRIC_VALUES - 1; i++) {
                 values[i] = values[i + 1];
