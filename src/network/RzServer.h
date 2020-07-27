@@ -29,10 +29,9 @@ private:
 
     unsigned int sendMetrics();
 
-    unsigned int sendConfig();
+    unsigned int sendDashboardConfig();
 
-    void handleVersion();
-
+    void handleComponentConfig();
 };
 
 #endif

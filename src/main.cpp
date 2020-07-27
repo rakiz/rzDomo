@@ -1,4 +1,5 @@
 /**
+ * https://circuits4you.com/2016/12/16/esp8266-serial-communication/
  * https://favicon.io/
  * https://diyprojects.io/esp8266-web-server-part-4-arduinojson-load-save-files-spiffs/
  * https://github.com/me-no-dev/arduino-esp32fs-plugin
@@ -12,6 +13,11 @@
  * https://iotdesignpro.com/projects/iot-based-food-monitoring-system
  * https://scidle.com/how-to-use-a-ph-sensor-with-arduino/
  * https://www.geekstips.com/mq4-sensor-natural-gas-methane-arduino/
+ * https://github.com/stevemarple/IniFile
+ * https://www.compuphase.com/minini.htm
+ * https://github.com/compuphase/minIni
+ * https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266mDNS/examples/OTA-mDNS-LittleFS/OTA-mDNS-SPIFFS.ino
+ * https://www.megunolink.com/documentation/connecting/mdns-browser/ <- could be used to conecct ESP together (mdns is not working from browser)
  * String error = String();
  * error += F("!NO_LEADING_SLASH! ");
  */

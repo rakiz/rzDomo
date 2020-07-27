@@ -8,13 +8,6 @@ RzServer::RzServer(int _port, RzTime *_myTime, RzFiles *_myFiles, RzMetric *_met
     myMetric = _metric;
 }
 
-void RzServer::handleVersion() {
-    String version = F("{\"version\":\"2002.07\"}");
-    myServer->sendHeader("Access-Control-Allow-Origin", "*");
-    myServer->send(200, CONTENT_TYPE_JSON, version);
-    Serial.printf("Metrics sent: %s \r\n", version.c_str());
-}
-
 void RzServer::setup() {
     // HTTP server
     myServer->onNotFound([this]() {
@@ -32,8 +25,9 @@ void RzServer::setup() {
                           contentType.c_str());
         }
     });
-    myServer->on("/api/version", HTTP_GET, [this] { handleVersion(); });
-    myServer->on("/api/metrics", HTTP_GET, [this] { handleMetrics(); });
+    myServer->on("/api/metrics", HTTP_ANY, [this] { handleMetrics(); });
+
+    myServer->on("/api/config", HTTP_ANY, [this] { handleComponentConfig(); });
 
     myServer->begin();                           // Actually start the server
     Serial.print("HTTP server started on port: ");
@@ -46,8 +40,17 @@ void RzServer::loop(unsigned long _currentMillis) {
 
 //[{"ts":1594376196,"t":27}]
 void RzServer::handleMetrics() {
-    // use HTTP/1.1 Chunked response to avoid building a huge temporary string
-    if (!myServer->chunkedResponseModeStart(200, CONTENT_TYPE_JSON)) {
+    if (myServer->method() == HTTP_OPTIONS) {
+        Serial.printf("OPTIONS(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        myServer->sendHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+        myServer->send(200);
+        return;
+    } else if (myServer->method() != HTTP_GET) {
+        Serial.printf("UNSUPPORTED(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        myServer->send(401);
+        return;
+    } else if (!myServer->chunkedResponseModeStart(200, CONTENT_TYPE_JSON)) {
+        // use HTTP/1.1 Chunked response to avoid building a huge temporary string
         myServer->send(505, CONTENT_TYPE_HTML, F("HTTP1.1 required"));
         return;
     }
@@ -55,7 +58,7 @@ void RzServer::handleMetrics() {
 
     // check first if we need metrics configuration
     if (myServer->hasArg("config")) {
-        unsigned int nb = sendConfig();
+        unsigned int nb = sendDashboardConfig();
         Serial.printf("%d metrics configuration sent\r\n", nb);
     } else {
         unsigned int nb = sendMetrics();
@@ -108,7 +111,7 @@ unsigned int RzServer::sendMetrics() {
     return nb;
 }
 
-unsigned int RzServer::sendConfig() {
+unsigned int RzServer::sendDashboardConfig() {
     // use the same string for every line
     String output;
     output.reserve(64);
@@ -127,6 +130,35 @@ unsigned int RzServer::sendConfig() {
     return 1; // number of metrics
 }
 
+void RzServer::handleComponentConfig() {
+    for (int i = 0; i < myServer->args(); i++) {
+        Serial.printf("%s => %s\r\n", myServer->argName(i).c_str(), myServer->arg(i).c_str());
+    }
+
+    myServer->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
+    if (myServer->method() == HTTP_GET) {
+        Serial.printf("GET(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        // TODO get configuration from all configurable components and send it
+        myServer->send(200);
+    } else if (myServer->method() == HTTP_POST) {
+        Serial.printf("POST(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        // TODO pass configuration to the targeted component
+        myServer->send(201);
+    } else if (myServer->method() == HTTP_DELETE) {
+        Serial.printf("DELETE(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        // TODO remove  configuration from targeted component
+        myServer->send(202);
+    } else if (myServer->method() == HTTP_OPTIONS) {
+        Serial.printf("OPTIONS(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        myServer->sendHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+        myServer->send(200);
+        return;
+    } else {
+        Serial.printf("UNSUPPORTED(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        myServer->send(401);
+        return;
+    }
+}
 //  /api/metrics -> JSON with metrics
 //  / -> web page
 
