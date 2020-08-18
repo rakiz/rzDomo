@@ -103,12 +103,31 @@ let rzConfig =
     ];
 
 window.onload = function() {
-    if (rzConfig && Array.isArray(rzConfig) && rzConfig.length > 0) {
-        for (let i = 0; i < rzConfig.length; i++) {
-            console.log("id=[" + rzConfig[i].id + "] title=[" + rzConfig[i].title + "]");
-            document.getElementById("configContainer").insertAdjacentHTML("beforeend", htmlComponent(rzConfig[i]));
+    const myHeaders = new Headers();
+    const myInit = {method: 'GET', headers: myHeaders, mode: 'cors', cache: 'default'};
+
+    const myRequest = new Request(config_api_url, myInit);
+
+    fetch(myRequest).then(function (response) {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            response.json().then(function (json) {
+
+                if (json && Array.isArray(json) && json.length > 0) {
+                    for (let i = 0; i < json.length; i++) {
+                        console.log("id=[" + json[i].id + "] title=[" + json[i].title + "]");
+                        document.getElementById("configContainer").insertAdjacentHTML("beforeend", htmlComponent(json[i]));
+                    }
+                }
+                //if (rzConfig && Array.isArray(rzConfig) && rzConfig.length > 0) {
+                //    for (let i = 0; i < rzConfig.length; i++) {
+                //        console.log("id=[" + rzConfig[i].id + "] title=[" + rzConfig[i].title + "]");
+                //        document.getElementById("configContainer").insertAdjacentHTML("beforeend", htmlComponent(rzConfig[i]));
+                //    }
+                //}
+            });
         }
-    }
+    });
 }
 
 function htmlComponent(component) {

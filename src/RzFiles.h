@@ -1,17 +1,28 @@
-#ifndef _MYFILES_H_
-#define _MYFILES_H_
+#ifndef _RZ_FILES_H_
+#define _RZ_FILES_H_
 
 #include <Arduino.h>
 #include <FS.h>   // Include the SPIFFS library
-#include "RzLoop.h"
 
-class RzFiles : public RzLoop {
+#include "base/RzComponent.h"
+
+class RzFiles : public RzComponent { // TODO: make it configurable for auto cleanup old metric files
 public:
-    void setup();
+    RzFiles();
 
-    void loop(unsigned long _currentMillis);
+    void setup() override;
 
-    File fileRead(String _path);
+    void loop(timeMs referenceTime) override;
+
+    const char *getId() override;
+
+    const char *getDisplayName() override;
+
+    const char *getPrefix() override;
+
+    static File openRead(String path);
+
+    static File openWrite(String path);
 
 private:
 };

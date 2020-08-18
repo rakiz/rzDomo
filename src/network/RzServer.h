@@ -1,37 +1,42 @@
-#ifndef _MYSERVER_H_
-#define _MYSERVER_H_
+#ifndef _RZ_SERVER_H_
+#define _RZ_SERVER_H_
 
 #include <Arduino.h>
 #include <ESP8266WebServer.h>   // Include the WebServer library
-#include "../network/RzTime.h"
-#include "../sensors/RzMetric.h"
-#include "../RzFiles.h"
-#include "../RzLoop.h"
-#include "RzTime.h"
+
+#include "base/RzComponents.h"
+#include "RzFiles.h"
 
 #define SRV_PORT 80
 
-class RzServer : public RzLoop {
+class RzServer : public RzComponent {
 public:
-    RzServer(int _port, RzTime *_myTime, RzFiles *_myFiles, RzMetric *_metric);
+    RzServer(int port, RzComponents &components);
+    virtual ~RzServer();
 
-    void setup();
+    void setup() override;
 
-    void loop(unsigned long _currentMillis);
+    void loop(timeMs referenceTime) override;
+
+    const char *getId() override;
+
+    const char *getDisplayName() override;
+
+    const char *getPrefix() override;
 
 private:
-    RzTime *myTime;
-    RzFiles *myFiles;
-    RzMetric *myMetric;
-    ESP8266WebServer *myServer;
+    RzComponents &_components;
+    ESP8266WebServer *_server;
 
     void handleMetrics();
 
-    unsigned int sendMetrics();
+    uint sendMetrics();
 
-    unsigned int sendDashboardConfig();
+    uint sendChartsConfig();
 
     void handleComponentConfig();
+
+    uint sendComponentConfig();
 };
 
 #endif

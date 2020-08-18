@@ -111,7 +111,7 @@ function add2Dataset(dataset, ts, value) {
     } else {
         info("IGNORED value: " + str + " - " + value);
     }
-    if (dataset.length > 256) {
+    if (dataset.length > 1024) {
         dataset.shift();
     }
 }

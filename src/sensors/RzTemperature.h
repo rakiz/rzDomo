@@ -4,36 +4,51 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#include "../network/RzTime.h"
-#include "../tools/LinearCorrection.h"
-#include "../tools/MultiSampling.h"
-#include "RzMetric.h"
+#include "base/RzSensor.h"
+#include "RzFiles.h"
+#include "tools/LinearCorrection.h"
+#include "tools/MultiSampling.h"
 
 #define TEMPERATURE_PRECISION 11
 
-class RzTemperature : public RzMetric {
+class RzTemperature : public RzSensor {
 public:
-    RzTemperature(RzTime *myTime, uint8_t _pin, unsigned long _interval);
+    RzTemperature(uint8_t pin, const char *id, const char *displayName);
+
+    //RzTemperature(RzFiles &files, uint8_t pin, DeviceAddress deviceAddress);
 
     void setup();
 
-    void loop(unsigned long _currentMillis);
+    void loop(timeMs referenceTime);
+
+    String getJsonConfig();
+
+    virtual ~RzTemperature();
+
+    const char *getDisplayName() override;
+
+    const char *getPrefix() override;
+
+    void loadConfiguration() override;
+
+    void saveConfiguration() override;
 
 private:
-    OneWire oneWire;
-    DallasTemperature sensors;
+    const char *_displayName;
 
-    RzTime *myTime;
+    OneWire *_oneWire;
+    DallasTemperature *_sensors;
+
     // linear correction tool
-    LinearCorrection *linCor;
+    LinearCorrection *_linCor;
     // Multisampler configuration
-    MultiSampling *multisampling;
+    MultiSampling *_multisampling;
     // arrays to hold device addresses
-    DeviceAddress thermometer;
+    DeviceAddress _device;
 
-    float getTemperature(DeviceAddress _deviceAddress);
+    float getTemperature();
 
-    void printAddress(DeviceAddress);
+    void printAddress();
 
 };
 

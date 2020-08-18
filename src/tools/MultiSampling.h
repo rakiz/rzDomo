@@ -3,36 +3,53 @@
 
 #include <Arduino.h>
 #include <functional>
+#include <base/RzConfigurable.h>
 
-typedef std::function<float(void)> SamplingHandler;
+typedef std::function<int(void)> SamplingHandler;
 
-class MultiSampling {
+class MultiSampling : public RzConfigurable {
 public:
-    MultiSampling(int _nbSampling, int _extrems, unsigned long _delaySampling, unsigned long _delayMeasure);
+    MultiSampling(const char *id, //
+            int nbSampling, int extremes, ulong delaySampling, ulong delayMeasure);
 
-    float sample(unsigned long _currentMillis, const SamplingHandler& _lambda);
+    virtual ~MultiSampling();
 
-    void displayConfig();
+    int sample(timeMs currentMillis, const SamplingHandler& lambda);
+
+    void displayConfig() const;
+
+    String getJsonConfig();
+
+    void loadConfiguration() override;
+
+    void saveConfiguration() override;
+
+    const char *getId() override;
+
+    const char *getDisplayName() override;
+
+    const char *getPrefix() override;
 
 private:
     void clean();
 
-    void add(unsigned long _currentMillis, float _value);
+    void add(timeMs currentMillis, int value);
 
     bool needMore() const;
 
-    bool isReady(unsigned long _currentMillis) const;
+    bool isReady(timeMs currentMillis) const;
 
-    float getFinalValue();
+    int getFinalValue();
 
-    float *buf;
-    int nbSampling;
-    int extrems;
-    int current;
-    unsigned long delaySampling;
-    unsigned long delayMeasure;
-    unsigned long previousSampling;
-    unsigned long previousMeasure;
+    const char *_id;
+    int *_buf;
+    int _size;
+    int _extremes;
+    int _current;
+    ulong _delaySampling;
+    ulong _delayMeasure;
+    ulong _previousSampling;
+    ulong _previousMeasure;
 };
 
 #endif

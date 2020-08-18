@@ -1,163 +1,261 @@
-#include "../tools/Tools.h"
-#include "RzServer.h"
+#include "base/RzComponent.h"
+#include "base/RzSensor.h"
+#include "network/RzServer.h"
+#include "tools/Tools.h"
 
-RzServer::RzServer(int _port, RzTime *_myTime, RzFiles *_myFiles, RzMetric *_metric) {
-    myServer = new ESP8266WebServer(_port);
-    myTime = _myTime;
-    myFiles = _myFiles;
-    myMetric = _metric;
+RzServer::RzServer(int port, RzComponents &components) : _components(components){
+    _server = new ESP8266WebServer(port);
+}
+
+RzServer::~RzServer() {
+    delete _server;
 }
 
 void RzServer::setup() {
-    // HTTP server
-    myServer->onNotFound([this]() {
-        String path = myServer->uri();
+// HTTP server
+    Serial.println("Setting up web site.");
+    _server->onNotFound([this]() {
+//        Serial.println("File access.");
+        String path = _server->uri();
         if (path.endsWith("/")) path += "index.html";           // If a folder is requested, send the index file
-        File file = myFiles->fileRead(path);
+        File file = RzFiles::openRead(path);
         if (!file) {                 // send it if it exists
             Serial.println("\tFile Not Found: " + path);
-            myServer->send(404, CONTENT_TYPE_TEXT, "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
+            _server->send(404, CONTENT_TYPE_TEXT, "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
         } else {
             String contentType = getContentType(path);             // Get the MIME type
-            size_t sent = myServer->streamFile(file, contentType);    // Send it to the client
+            size_t sent = _server->streamFile(file, contentType);    // Send it to the client
             file.close();                                          // Close the file again
             Serial.printf("File sent: %s, size: %s (%s)\r\n", path.c_str(), formatBytes(sent).c_str(),
                           contentType.c_str());
         }
     });
-    myServer->on("/api/metrics", HTTP_ANY, [this] { handleMetrics(); });
+    Serial.println("Setting up /api/metrics API.");
+    _server->on("/api/metrics", HTTP_ANY, [this] {
+//        Serial.println("/api/metrics API access.");
+        handleMetrics();
+    });
+    Serial.println("Setting up /api/config API.");
+    _server->on("/api/config", HTTP_ANY, [this] {
+//        Serial.println("/api/config API access.");
+        handleComponentConfig();
+    });
 
-    myServer->on("/api/config", HTTP_ANY, [this] { handleComponentConfig(); });
-
-    myServer->begin();                           // Actually start the server
+    _server->begin();                           // Actually start the server
     Serial.print("HTTP server started on port: ");
     Serial.println(SRV_PORT);
 }
 
-void RzServer::loop(unsigned long _currentMillis) {
-    myServer->handleClient();                    // Listen for HTTP requests from clients
+void RzServer::loop(timeMs referenceTime) {
+    _server->handleClient();                    // Listen for HTTP requests from clients
 }
 
 //[{"ts":1594376196,"t":27}]
 void RzServer::handleMetrics() {
-    if (myServer->method() == HTTP_OPTIONS) {
-        Serial.printf("OPTIONS(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
-        myServer->sendHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
-        myServer->send(200);
+    _server->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
+    if (_server->method() == HTTP_OPTIONS) {
+        Serial.printf("OPTIONS(%d) %s\r\n", _server->method(), _server->uri().c_str());
+        _server->sendHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+        _server->send(200);
         return;
-    } else if (myServer->method() != HTTP_GET) {
-        Serial.printf("UNSUPPORTED(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
-        myServer->send(401);
+    } else if (_server->method() != HTTP_GET) {
+        Serial.printf("UNSUPPORTED(%d) %s\r\n", _server->method(), _server->uri().c_str());
+        _server->send(401);
         return;
-    } else if (!myServer->chunkedResponseModeStart(200, CONTENT_TYPE_JSON)) {
+    } else if (!_server->chunkedResponseModeStart(200, CONTENT_TYPE_JSON)) {
         // use HTTP/1.1 Chunked response to avoid building a huge temporary string
-        myServer->send(505, CONTENT_TYPE_HTML, F("HTTP1.1 required"));
+        _server->send(505, CONTENT_TYPE_HTML, F("HTTP1.1 required"));
         return;
     }
-    myServer->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
 
     // check first if we need metrics configuration
-    if (myServer->hasArg("config")) {
-        unsigned int nb = sendDashboardConfig();
-        Serial.printf("%d metrics configuration sent\r\n", nb);
+    if (_server->hasArg("config")) {
+        uint nb = sendChartsConfig();
+        Serial.printf("%d metric chart configurations sent\r\n", nb);
     } else {
-        unsigned int nb = sendMetrics();
+        uint nb = sendMetrics();
         Serial.printf("%d metrics sent\r\n", nb);
     }
-    myServer->chunkedResponseFinalize();
+    _server->chunkedResponseFinalize();
 }
 
-unsigned int RzServer::sendMetrics() {
-    MetricStruct *measures = myMetric->getValues();   // start from the beginning
-    int nb = myMetric->getSize();                     // number of value to return = size of array
-    if (myServer->hasArg("since")) {
-        // 'since' parameter contains the last timestamp the UI received
-        unsigned long timestamp = (unsigned long) atol(myServer->arg("since").c_str());
-        // so we discard all metrics before (or equal) that timestamp
-        for (int i = 0; i < myMetric->getSize() && measures->time <= timestamp; i++) {
-            measures++;
-            nb--;
+uint RzServer::sendMetrics() {
+    struct ValueVisitor : public RzSensorValueVisitor {
+    public:
+        ValueVisitor(ESP8266WebServer &server, timeMs since) :
+                _buf{}, _count(0), _since(since), _currentTime(0), _server(server) {
         }
-    } else if (myServer->hasArg("last")) {
-        // 'last' parameter contains the number of metrics the UI wants. It will return only these metrics
-        nb = min(nb, atoi(myServer->arg("last").c_str()));
-        measures = &(myMetric->getValues()[myMetric->getSize() - nb]);
-    }
 
-    // use the same string for every line
-    String output;
-    output.reserve(64);
-    output = '[';
-    for (int i = 0; i < nb; i++) {
-        if (output.length() > 1) {
-            // send string from previous iteration as an HTTP chunk
-            myServer->sendContent(output);
-            output = ',';
+        virtual ~ValueVisitor() = default;
+
+        bool onTime(timeMs time) override {
+            if (time <= _since) return false;
+            if (time != _currentTime && _currentTime != 0) {
+                _server.sendContent("},"); // we have to finish previous bloc
+            }
+            _server.sendContent("{\"ts\":");
+            sprintf(_buf, "%lu", time);
+            _server.sendContent(_buf);
+            _count++;
+            return true;
         }
-        //{"ts":1595355283,"t":26.13}
-        output += "{\"ts\":";
-        output += measures->time;
-        output += ",\"";
-        output += myMetric->getId();
-        output += "\":";
-        output += measures->value;
-        output += "}";
-        measures++;
-    }
-    // send last string
-    output += "]";
-    myServer->sendContent(output);
+
+        void onValue(String id, int value, int precision) override {
+            _server.sendContent(",\"");
+            _server.sendContent(id);
+            _server.sendContent("\":");
+            if (precision == 0) {
+                sprintf(_buf, "%d", value);
+            } else {
+                // FIXME: precision fixed a 2 + no bool support
+                sprintf(_buf, "%.2f", (float) value / pow(10, precision));
+            }
+            _server.sendContent(_buf);
+        }
+
+        uint getCount() const {
+            return _count;
+        }
+
+    private:
+        char _buf[20];  // shared temporary buffer
+        uint _count;
+        timeMs _since;
+        timeMs _currentTime;
+        ESP8266WebServer &_server;
+    };
+
+    timeMs since = _server->hasArg("since") ? (timeMs) atol(_server->arg("since").c_str()) : 0;
+    auto *pVisitor = new ValueVisitor(*_server, since);
+    _server->sendContent("[");
+    _components.visitSensorValues(*pVisitor);
+    uint nb = pVisitor->getCount();
+    if (nb > 0) _server->sendContent("}");
+    _server->sendContent("]");
+    delete pVisitor;
 
     return nb;
 }
 
-unsigned int RzServer::sendDashboardConfig() {
-    // use the same string for every line
-    String output;
-    output.reserve(64);
-    output = '[';
-    // {"id":"tp", "name": "Température Pisicine", "unit": "°C"}
-    output += "{\"id\":\"";
-    output += myMetric->getId();
-    output += "\",\"name\":\"";
-    output += myMetric->getDisplayName();
-    output += "\",\"unit\":\"";
-    output += myMetric->getUnit();
-    output += "\"}";
-    // send last string
-    output += "]";
-    myServer->sendContent(output);
-    return 1; // number of metrics
+uint RzServer::sendChartsConfig() {
+    struct ChartConfigVisitor : public RzSensorChartConfigVisitor {
+    public:
+        explicit ChartConfigVisitor(ESP8266WebServer &server) : _count(0), _server(server) {}
+
+        virtual ~ChartConfigVisitor() = default;
+
+        void visit(const char *id, const char *displayName, const char *unit) override {
+            if (_count > 0) _server.sendContent(",");
+            _server.sendContent(R"({"id":")");
+            _server.sendContent(id);
+            _server.sendContent(R"(","name":")");
+            _server.sendContent(displayName);
+            _server.sendContent(R"(","unit":")");
+            _server.sendContent(unit);
+            _server.sendContent("\"}");
+            _count++;
+        }
+
+        uint getCount() const {
+            return _count;
+        }
+
+    private:
+        uint _count;
+        ESP8266WebServer &_server;
+
+    };
+
+    auto *pVisitor = new ChartConfigVisitor(*_server);
+    _server->sendContent("[");
+    _components.visitSensorChartConfig(*pVisitor);
+    uint nb = pVisitor->getCount();
+    _server->sendContent("]");
+    delete pVisitor;
+
+    return nb;
+
 }
 
 void RzServer::handleComponentConfig() {
-    for (int i = 0; i < myServer->args(); i++) {
-        Serial.printf("%s => %s\r\n", myServer->argName(i).c_str(), myServer->arg(i).c_str());
+    for (int i = 0; i < _server->args(); i++) {
+        Serial.printf("%s => %s\r\n", _server->argName(i).c_str(), _server->arg(i).c_str());
     }
 
-    myServer->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
-    if (myServer->method() == HTTP_GET) {
-        Serial.printf("GET(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
-        // TODO get configuration from all configurable components and send it
-        myServer->send(200);
-    } else if (myServer->method() == HTTP_POST) {
-        Serial.printf("POST(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+    _server->sendHeader(F("Access-Control-Allow-Origin"), F("*"));
+    if (_server->method() == HTTP_POST) {
+        Serial.printf("POST(%d) %s\r\n", _server->method(), _server->uri().c_str());
         // TODO pass configuration to the targeted component
-        myServer->send(201);
-    } else if (myServer->method() == HTTP_DELETE) {
-        Serial.printf("DELETE(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
+        _server->send(201);
+    } else if (_server->method() == HTTP_DELETE) {
+        Serial.printf("DELETE(%d) %s\r\n", _server->method(), _server->uri().c_str());
         // TODO remove  configuration from targeted component
-        myServer->send(202);
-    } else if (myServer->method() == HTTP_OPTIONS) {
-        Serial.printf("OPTIONS(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
-        myServer->sendHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
-        myServer->send(200);
+        _server->send(202);
+    } else if (_server->method() == HTTP_OPTIONS) {
+        Serial.printf("OPTIONS(%d) %s\r\n", _server->method(), _server->uri().c_str());
+        _server->sendHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+        _server->send(200);
         return;
-    } else {
-        Serial.printf("UNSUPPORTED(%d) %s\r\n", myServer->method(), myServer->uri().c_str());
-        myServer->send(401);
+    } else if (_server->method() != HTTP_GET) {
+        Serial.printf("UNSUPPORTED(%d) %s\r\n", _server->method(), _server->uri().c_str());
+        _server->send(401);
+        return;
+    } else if (!_server->chunkedResponseModeStart(200, CONTENT_TYPE_JSON)) {
+        // use HTTP/1.1 Chunked response to avoid building a huge temporary string
+        _server->send(505, CONTENT_TYPE_HTML, F("HTTP1.1 required"));
         return;
     }
+
+    Serial.printf("GET(%d) %s\r\n", _server->method(), _server->uri().c_str());
+    uint nb = sendComponentConfig();
+    Serial.printf("%d component configurations sent\r\n", nb);
+    _server->chunkedResponseFinalize();
+}
+
+uint RzServer::sendComponentConfig() {
+    struct ConfigVisitor : public RzConfigurableVisitor {
+    public:
+        explicit ConfigVisitor(ESP8266WebServer &server) : _count(0), _server(server) {}
+
+        virtual ~ConfigVisitor() {}
+
+        void visit(String jsonConfig) override {
+            if (_count > 0) _server.sendContent(",");
+            _server.sendContent(jsonConfig);
+            _count++;
+        }
+
+        uint getCount() const {
+            return _count;
+        }
+
+    private:
+        uint _count;
+        ESP8266WebServer &_server;
+
+    };
+
+    auto *pVisitor = new ConfigVisitor(*_server);
+    _server->sendContent("[");
+    _components.visitConfigurables(*pVisitor);
+    uint nb = pVisitor->getCount();
+    _server->sendContent("]");
+    delete pVisitor;
+
+    return nb;
+}
+
+
+const char *RzServer::getId() {
+    return "web";
+}
+
+const char *RzServer::getDisplayName() {
+    return "Web server";
+}
+
+const char *RzServer::getPrefix() {
+    return "Web";
 }
 //  /api/metrics -> JSON with metrics
 //  / -> web page

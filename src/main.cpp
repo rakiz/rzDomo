@@ -25,21 +25,15 @@
 
 #include "RzFiles.h"
 #include "network/RzWifi.h"
-#include "network/RzTime.h"
 #include "network/RzServer.h"
 #include "sensors/RzTemperature.h"
+#include "sensors/RzMemory.h"
 
 // Data wire is plugged into GPIO4 (D2) on the ESP8266
 #define ONE_WIRE_PIN 4
 
-String DNS_NAME = "piscine";
-String WIFI_CREDENTIALS[] = {
-        "BelaTegeuse_5.0", "ledormeurdoitsereveiller",
-        "BelaTegeuse_2.4", "ledormeurdoitsereveiller",
-        "Salusa-Secondus", "ledormeurdoitsereveiller"
-};
-
-std::vector<RzLoop *> rzLoops;
+RzWifi *wifi;
+RzComponents components;
 
 void setup() {
     Serial.begin(115200);
@@ -53,36 +47,23 @@ void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH); // turn the LED off (HIGH is the voltage level)
 
-    // Initialize the Wifi
-    RzWifi *myWifi = new RzWifi(DNS_NAME, WIFI_CREDENTIALS, 3);
-    rzLoops.push_back(myWifi);
-    myWifi->setup();
-
-    // Initialize the Time Synchronization (should be merged with wifi)
-    RzTime *myTime = new RzTime();
-    rzLoops.push_back(myTime);
-    myTime->setup();
+    // Initialize the Wifi & synchronized time
+    wifi = new RzWifi();
+    components.add(wifi);
 
     // Initialize the SPI Flash Files System
-    RzFiles *myFiles = new RzFiles();
-    rzLoops.push_back(myFiles);
-    myFiles->setup();    // Start the SPI Flash Files System
+    components.add(new RzFiles());
 
     // Initialize the Thermometer
-    RzTemperature *temp = new RzTemperature(myTime, ONE_WIRE_PIN, 60 * 1000);
-    rzLoops.push_back(temp);
-    temp->setup();
+    //components.add(new RzTemperature(ONE_WIRE_PIN, "tp", "Temperature Piscine"));
+
+    // Initialize Memory monitoring
+    components.add(new RzMemory());
 
     // Initialize the Web server
-    RzServer *myServer = new RzServer(80, myTime, myFiles, temp);
-    rzLoops.push_back(myServer);
-    myServer->setup();
+    components.add(new RzServer(80, components));
 
-    uint32_t hfree;
-    uint16_t hmax;
-    uint8_t hfrag;
-    ESP.getHeapStats(&hfree, &hmax, &hfrag);
-    Serial.printf("%d Free, %d max, %d Fragment.\r\n", hfree, hmax, hfrag);
+//    components.setup();
 
     Serial.println();
     Serial.println("Node is started and ready to rumble.");
@@ -91,8 +72,10 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
-    unsigned long currentMillis = millis();
-    for (unsigned int i(0); i < rzLoops.size(); ++i) {
-        rzLoops[i]->loop(currentMillis);
+    timeMs now = wifi->getTime();
+    while(wifi->isTimeSynchronized() && now<MIN_TIMESTAMP) { // wait for time synchro
+        delay(1000);
+        now = wifi->getTime();
     }
+    components.loop(now);
 }

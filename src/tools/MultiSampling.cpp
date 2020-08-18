@@ -1,74 +1,126 @@
 #include "MultiSampling.h"
 
 
-MultiSampling::MultiSampling(int _nbSampling, int _extrems, unsigned long _delaySampling, unsigned long _delayMeasure) {
-    nbSampling = _nbSampling;
-    extrems = _extrems;
-    delaySampling = _delaySampling;
-    delayMeasure = _delayMeasure;
-    buf = new float[nbSampling];
+MultiSampling::MultiSampling(const char *id, //
+        int nbSampling, int extremes, ulong delaySampling, ulong delayMeasure) :
+        _id(id), _size(nbSampling), _extremes(extremes), _delaySampling(delaySampling), _delayMeasure(delayMeasure) {
+    MultiSampling::loadConfiguration();
+    _buf = new int[_size];
     clean();
 }
 
 
 void MultiSampling::clean() {
-    current = 0;
-    previousMeasure = 0;
-    previousSampling = 0;
+    _current = 0;
+    _previousMeasure = 0;
+    _previousSampling = 0;
 }
 
-void MultiSampling::add(unsigned long _currentMillis, float _value) {
-    previousSampling = _currentMillis;
-    buf[current++] = _value;
+void MultiSampling::add(timeMs currentMillis, int value) {
+    _previousSampling = currentMillis;
+    _buf[_current++] = value;
 }
 
 bool MultiSampling::needMore() const {
-    return current < nbSampling;
+    return _current < _size;
 }
 
-bool MultiSampling::isReady(unsigned long _currentMillis) const {
-    return previousSampling == 0 || _currentMillis - previousSampling > delaySampling;
+bool MultiSampling::isReady(timeMs currentMillis) const {
+    return _previousSampling == 0 || currentMillis - _previousSampling > _delaySampling;
 }
 
-float MultiSampling::getFinalValue() {
-    for (int i = 0; i < current - 1; i++) {
-        for (int j = i + 1; j < current; j++) {
-            if (buf[i] > buf[j]) {
-                float temp = buf[i];
-                buf[i] = buf[j];
-                buf[j] = temp;
+int MultiSampling::getFinalValue() {
+    for (int i = 0; i < _current - 1; i++) {
+        for (int j = i + 1; j < _current; j++) {
+            if (_buf[i] > _buf[j]) {
+                int temp = _buf[i];
+                _buf[i] = _buf[j];
+                _buf[j] = temp;
             }
         }
     }
-    float finalValue = 0;
-    for (int i = extrems; i < current - extrems; i++) {
-        finalValue += buf[i];
+    int finalValue = 0;
+    for (int i = _extremes; i < _current - _extremes; i++) {
+        finalValue += _buf[i];
     }
-    finalValue = finalValue / (float)(current - (2 * extrems));
+    finalValue = finalValue / (_current - (2 * _extremes));
 
     return finalValue;
 }
 
-float MultiSampling::sample(unsigned long _currentMillis, const SamplingHandler& _lambda) {
-    if (previousMeasure > 0 && _currentMillis - previousMeasure < delayMeasure) {
-        return -1; // Measures will have to wait
+int MultiSampling::sample(timeMs currentMillis, const SamplingHandler& _lambda) {
+    if (_previousMeasure > 0 && currentMillis - _previousMeasure < _delayMeasure) {
+        return INT32_MIN; // Measures will have to wait
     }
 
     if (!needMore()) {
-        float tempC = getFinalValue();
+        int value = getFinalValue();
         clean();
-        previousMeasure = _currentMillis;
-        return tempC;
-    } else if (isReady(_currentMillis)) {
-        float temp = _lambda();
-        add(_currentMillis, temp);
+        _previousMeasure = currentMillis;
+        return value;
+    } else if (isReady(currentMillis)) {
+        int temp = _lambda();
+        add(currentMillis, temp);
     }
-    return -2; // Measure sampling not finished
+    return INT32_MIN; // Measure sampling not finished
 }
 
-void MultiSampling::displayConfig() {
+void MultiSampling::displayConfig() const {
     Serial.printf(
             "MultiSampling(nb sampling: %i, remove extrems: %i, delay between measures: %lu, delay between samplings: %lu)\r\n",
-            nbSampling, extrems, delayMeasure, delaySampling);
+            _size, _extremes, _delayMeasure, _delaySampling);
 }
 
+String MultiSampling::getJsonConfig() {
+    String config;
+    config.reserve(340); // Do we need an id?
+    config += R"({"title":"Multi sampling","parameters": [)";
+    config += R"({"name": "Sampling number","id": "size","value":)";
+    config += _size;
+    config += R"(},{"name": "Remove extremes","id": "extremes","value":)";
+    config += _extremes;
+    config += R"lit(},{"name": "Delay between samples (ms)","id": "delaySampling","value":)lit";
+    config += _delaySampling;
+    config += R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit";
+    config += _delayMeasure;
+    config += "}]}";
+    return config;
+}
+
+MultiSampling::~MultiSampling() = default;
+
+void MultiSampling::loadConfiguration() {
+    File file = getConfigurationFile(MultiSampling::getPrefix(), true);
+
+    if (file) {
+        Serial.printf("Opening configuration: %s\r\n", file.fullName());
+        _size = file.readStringUntil('\n').toInt();
+        _extremes = file.readStringUntil('\n').toInt();
+        _delaySampling = file.readStringUntil('\n').toInt();
+        _delayMeasure = file.readStringUntil('\n').toInt();
+    } else {
+        Serial.printf("Configuration file for %s (%s) not found\r\n", MultiSampling::getPrefix(), getId());
+    }
+    file.close();
+}
+
+void MultiSampling::saveConfiguration() {
+    File file = getConfigurationFile(MultiSampling::getPrefix(), false);
+    file.write(_size);
+    file.write(_extremes);
+    file.write(_delaySampling);
+    file.write(_delayMeasure);
+    file.close();
+}
+
+const char *MultiSampling::getId() {
+    return _id;
+}
+
+const char *MultiSampling::getDisplayName() {
+    return "Multisampling";
+}
+
+const char *MultiSampling::getPrefix() {
+    return "Multisampling";
+}

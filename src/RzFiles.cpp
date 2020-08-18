@@ -1,5 +1,5 @@
-#include "RzFiles.h"
 #include "tools/Tools.h"
+#include "RzFiles.h"
 
 void RzFiles::setup() { // Start the SPIFFS and list all contents
     SPIFFS.begin();                             // Start the SPI Flash File System (SPIFFS)
@@ -33,22 +33,42 @@ void RzFiles::setup() { // Start the SPIFFS and list all contents
     }
 }
 
-void RzFiles::loop(unsigned long _currentMillis) {
+void RzFiles::loop(ulong referenceTime) {
     // nothing to do for now. Maybe at sometime some cleanup
 }
 
 /**
  * returned file MUST be closed 
  */
-File RzFiles::fileRead(String _path) {  // send the right file to the client (if it exists)
-    //Serial.println("handleFileRead: " + path);
-    String pathWithGz = _path + ".gz";
-    if (SPIFFS.exists(pathWithGz) ||
-        SPIFFS.exists(_path)) {  // If the file exists, either as a compressed archive, or normal
-        if (SPIFFS.exists(pathWithGz))                          // If there's a compressed version available
-            _path += ".gz";                                         // Use the compressed version
-        File file = SPIFFS.open(_path, "r");                    // Open the file
-        return file;
-    }
-    return File();                                          // If the file doesn't exist, return false
+//File RzFiles::fileRead(String path) {  // send the right file to the client (if it exists)
+//    String pathWithGz = path + ".gz";
+//    if (SPIFFS.exists(pathWithGz)) {   // If the file exists, either as a compressed archive, or normal
+//        return SPIFFS.open(pathWithGz, "r"); // Open the file
+//    } else if (SPIFFS.exists(path)) {
+//        return SPIFFS.open(path, "r"); // Open the file
+//    } else return File();
+//}
+
+File RzFiles::openRead(String path) {  // send the right file to the client (if it exists)
+    if (SPIFFS.exists(path)) {
+        return SPIFFS.open(path, "r"); // Open the file
+    } else return File();
+}
+
+File RzFiles::openWrite(String path) {
+    return SPIFFS.open(path, "w");
+}
+
+RzFiles::RzFiles() {}
+
+const char *RzFiles::getId() {
+    return "files";
+}
+
+const char *RzFiles::getDisplayName() {
+    return "File system";
+}
+
+const char *RzFiles::getPrefix() {
+    return "Files";
 }
