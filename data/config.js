@@ -168,7 +168,7 @@ function htmlFieldSingleValue(parameter) {
             <div class="siimple-grid-col siimple-grid-col--3 siimple--py-0">
                 <div class="siimple-field">
                     <div class="siimple-field-label">${parameter.name}</div>
-                    <input name="${parameter.id}" type="text" class="siimple-input siimple-input--fluid" value="${parameter.value}">
+                    <input name="${parameter.id}" type="text" class="siimple-input siimple-input--fluid" value="${parameter.value}" ${parameter.access}>
                 </div>
             </div>
         `;

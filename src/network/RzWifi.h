@@ -11,7 +11,7 @@
 
 #define MIN_TIMESTAMP 1577836800
 
-class RzWifi : public RzComponent, public RzConfigurable {
+class RzWifi : public RzComponent {
 public:
     explicit RzWifi();
 

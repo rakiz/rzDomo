@@ -1,10 +1,11 @@
-#ifndef _RZ_CONFIGURABLE_H
-#define _RZ_CONFIGURABLE_H
+#ifndef _RZ_CONFIGURABLE_H_
+#define _RZ_CONFIGURABLE_H_
 
 #include <Arduino.h>
-#include "base/RzComponent.h"
 #include "base/RzIdentifiable.h"
-#include "RzFiles.h"
+#include "tools/FilesTools.h"
+
+using timeMs = ulong;
 
 class RzConfigurable : public RzIdentifiable {
 public:

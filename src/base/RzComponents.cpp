@@ -30,6 +30,7 @@ void RzComponents::visitSensorChartConfig(RzSensorChartConfigVisitor &visitor) {
 void RzComponents::visitConfigurable(RzConfigurableVisitor &visitor) {
     for (auto &_component : _components) {
         if (instanceof<RzConfigurable>(_component)) {
+            Serial.printf("Component %s configurable.\r\n", _component->getDisplayName());
             auto *configurable = (RzConfigurable *) _component;
             visitor.visit(configurable->getJsonConfig());
         }

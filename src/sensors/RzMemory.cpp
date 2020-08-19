@@ -30,7 +30,7 @@ void RzMemory::loop(timeMs referenceTime) {
 }
 
 const char *RzMemory::getDisplayName() {
-    return "Node memory";
+    return "ESP Memory";
 }
 
 const char *RzMemory::getPrefix() {
@@ -46,5 +46,16 @@ void RzMemory::saveConfiguration() {
 }
 
 String RzMemory::getJsonConfig() {
-    return RzSensor::getJsonConfig();
+    String config;
+    config.reserve(2048); // TODO: verify this
+
+    config.concat(R"({"id":")");
+    config.concat(getId());
+    config.concat(R"(","title":")");
+    config.concat(getDisplayName());
+    config.concat(R"(","parameters": [)");
+    config.concat(RzSensor::getJsonConfig());
+    config.concat("]}");
+
+    return config;
 }

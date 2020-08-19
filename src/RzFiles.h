@@ -2,7 +2,7 @@
 #define _RZ_FILES_H_
 
 #include <Arduino.h>
-#include <FS.h>   // Include the SPIFFS library
+#include "tools/FilesTools.h"
 
 #include "base/RzComponent.h"
 
@@ -20,9 +20,11 @@ public:
 
     const char *getPrefix() override;
 
-    static File openRead(const char *path);
+    String getJsonConfig() override;
 
-    static File openWrite(const char *path);
+    void loadConfiguration() override;
+
+    void saveConfiguration() override;
 
 private:
 };

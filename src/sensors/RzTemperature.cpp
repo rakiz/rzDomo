@@ -143,15 +143,24 @@ void RzTemperature::printAddress() {
 
 String RzTemperature::getJsonConfig() {
     String config;
-    config.reserve(1000);
-    config.concat(R"({"id": ")");
+    config.reserve(2048);
+
+    config.concat(R"({"id":")");
     config.concat(getId());
-    config.concat(R"(","title": ")");
-    config.concat("Température piscine");
+    config.concat(R"(","title":")");
+    config.concat(getDisplayName());
     config.concat(R"(","parameters": [)");
+    config.concat(RzSensor::getJsonConfig());
+
+    // linear correction
+    config.concat(R"(,)");
     config.concat(_linCor->getJsonConfig());
-    config.concat(",");
+
+    // multisampling
+    config.concat(R"(,)");
     config.concat(_multisampling->getJsonConfig());
-    config.concat("]}");
+
+    config.concat(R"(]})");
+
     return config;
 }

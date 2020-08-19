@@ -1,6 +1,10 @@
 #include "tools/Tools.h"
 #include "RzFiles.h"
 
+RzFiles::RzFiles() {
+    RzFiles::loadConfiguration();
+}
+
 void RzFiles::setup() { // Start the SPIFFS and list all contents
     SPIFFS.begin();                             // Start the SPI Flash File System (SPIFFS)
     {
@@ -37,18 +41,6 @@ void RzFiles::loop(ulong referenceTime) {
     // nothing to do for now. Maybe at sometime some cleanup
 }
 
-File RzFiles::openRead(const char *path) {  // send the right file to the client (if it exists)
-    if (SPIFFS.exists(path)) {
-        return SPIFFS.open(path, "r"); // Open the file
-    } else return File();
-}
-
-File RzFiles::openWrite(const char *path) {
-    return SPIFFS.open(path, "w");
-}
-
-RzFiles::RzFiles() = default;
-
 const char *RzFiles::getId() {
     return "files";
 }
@@ -59,4 +51,16 @@ const char *RzFiles::getDisplayName() {
 
 const char *RzFiles::getPrefix() {
     return "Files";
+}
+
+String RzFiles::getJsonConfig() {
+    return String();
+}
+
+void RzFiles::loadConfiguration() {
+
+}
+
+void RzFiles::saveConfiguration() {
+
 }

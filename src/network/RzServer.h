@@ -27,6 +27,12 @@ public:
 
     const char *getPrefix() override;
 
+    String getJsonConfig() override;
+
+    void loadConfiguration() override;
+
+    void saveConfiguration() override;
+
 private:
     RzComponents &_components;
     ESP8266WebServer *_server;

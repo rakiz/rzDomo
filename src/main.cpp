@@ -56,7 +56,7 @@ void setup() {
     components.add(new RzFiles());
 
     // Initialize the Thermometer
-    //components.add(new RzTemperature(ONE_WIRE_PIN, "tp", "Temperature Piscine"));
+    components.add(new RzTemperature(ONE_WIRE_PIN, "tp", "Temperature Piscine"));
 
     // Initialize Memory monitoring
     components.add(new RzMemory());

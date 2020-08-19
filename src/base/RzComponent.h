@@ -2,11 +2,9 @@
 #define _RZ_COMPONENT_H_
 
 #include <Arduino.h>
-#include "base/RzIdentifiable.h"
+#include "base/RzConfigurable.h"
 
-using timeMs = ulong;
-
-class RzComponent : public RzIdentifiable {
+class RzComponent : public RzConfigurable {
 public:
 
     virtual void setup() = 0;

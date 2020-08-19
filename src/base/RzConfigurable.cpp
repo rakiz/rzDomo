@@ -9,7 +9,7 @@ File RzConfigurable::getConfigurationFile(const char *prefix, bool isRead) {
         return File();
     }
 
-    const File &file = isRead ? RzFiles::openRead(path) : RzFiles::openWrite(path);
+    const File &file = isRead ? openRead(path) : openWrite(path);
     //    Serial.printf("Configuration file %s %s\r\n", path, file?"found, loading.":"not found, using default.");
     return file;
 }

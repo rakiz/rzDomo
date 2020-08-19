@@ -4,6 +4,7 @@
 #include "tools/Tools.h"
 
 RzServer::RzServer(int port, RzComponents &components) : _components(components) {
+    RzServer::loadConfiguration();
     _server = new ESP8266WebServer(port);
 }
 
@@ -24,7 +25,7 @@ void RzServer::setup() {
             path += INDEX_HTML;           // If a folder is requested, send the index file
         }
 
-        File file = RzFiles::openRead(path.c_str());
+        File file = openRead(path.c_str());
         if (!file) {                 // send it if it exists
             Serial.printf(R"(\tFile Not Found: %s\r\n)", path.c_str());
             _server->send(404, CONTENT_TYPE_TEXT,
@@ -232,9 +233,12 @@ uint RzServer::sendComponentConfig() {
         virtual ~ConfigVisitor() = default;
 
         void visit(const String &jsonConfig) override {
-            if (_count > 0) _server.sendContent(",");
-            _server.sendContent(jsonConfig);
-            _count++;
+            if (jsonConfig.length() > 0) {
+                Serial.println(jsonConfig);
+                if (_count > 0) _server.sendContent(",");
+                _server.sendContent(jsonConfig);
+                _count++;
+            }
         }
 
         uint getCount() const {
@@ -268,6 +272,18 @@ const char *RzServer::getDisplayName() {
 
 const char *RzServer::getPrefix() {
     return "Web";
+}
+
+String RzServer::getJsonConfig() {
+    return String();
+}
+
+void RzServer::loadConfiguration() {
+
+}
+
+void RzServer::saveConfiguration() {
+
 }
 //  /api/metrics -> JSON with metrics
 //  / -> web page

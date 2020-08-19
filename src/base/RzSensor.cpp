@@ -63,7 +63,7 @@ int RzSensor::convertValue(double value) const {
 // -=[ RzConfigurable }=------------------------------------------------------
 
 void RzSensor::loadConfiguration() {
-    File file = RzConfigurable::getConfigurationFile(RzSensor::getPrefix(), true);
+    File file = getConfigurationFile(RzSensor::getPrefix(), true);
 
     if (file) {
         Serial.printf("Opening configuration: %s\r\n", file.fullName());
@@ -78,7 +78,7 @@ void RzSensor::loadConfiguration() {
 }
 
 void RzSensor::saveConfiguration() {
-    File file = RzConfigurable::getConfigurationFile(RzSensor::getPrefix(), false);
+    File file = getConfigurationFile(RzSensor::getPrefix(), false);
     file.write(_maxSize);
     file.write(_maxDelayValues);
     file.write(_maxComparedValues);
@@ -89,15 +89,17 @@ void RzSensor::saveConfiguration() {
 String RzSensor::getJsonConfig() {
     String config;
     config.reserve(340); // Do we need an id?
-    config.concat(R"({"title":"Sensor","parameters": [)");
+    config.concat(R"({"id":"sensor","title":"Sensor","parameters": [)");
     config.concat(R"({"name": "Max kept values","id": "maxSize","value":)");
     config.concat(_maxSize);
-    config.concat(R"lit(},{"name": "Max delay between values (ms)","id": "maxDelayValues","value":)lit");
+    config.concat(R"lit(},{"name": "Delay between values (ms)","id": "maxDelayValues","value":)lit");
     config.concat(_maxDelayValues);
     config.concat(R"(},{"name": "Max compared values","id": "maxComparedValues","value":)");
     config.concat(_maxComparedValues);
     config.concat(R"(},{"name": "Ignored difference","id": "ignoredDiff","value":)");
     config.concat(_ignoredDiff);
+    config.concat(R"(},{"name": "Precision","id": "precision", "access":"readonly", "value":)");
+    config.concat(_precision);
     config.concat("}]}");
     return config;
 }

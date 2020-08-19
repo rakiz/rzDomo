@@ -175,28 +175,47 @@ void RzWifi::saveConfiguration() {
 
 
 const char *RzWifi::getId() {
-    return "wifi";
+    return "net";
 }
 
 const char *RzWifi::getDisplayName() {
-    return "Wifi";
+    return "Network Configuration";
 }
 
 const char *RzWifi::getPrefix() {
-    return "Wifi";
+    return "Network";
 }
 
-String RzWifi::getJsonConfig() { // FIXME: Time configuration is missing here!
+String RzWifi::getJsonConfig() {
     String config;
-    config.reserve(340); // Do we need an id?
-    config.concat(R"({"title":"Wifi","parameters": [)");
-    config.concat(R"({"name": "Dns Name","id": "dnsName","value":)");
+    config.reserve(1024); // Do we need an id?
+    config.concat(R"({"id":")");
+    config.concat(getId());
+    config.concat(R"(","title":")");
+    config.concat(getDisplayName());
+    config.concat(R"(","parameters": [)");
+
+    // Wifi config
+    config.concat(R"({"id":"wifi","title":"Wifi","parameters": [)");
+    config.concat(R"({"name": "Dns Name","id": "dnsName","value":")");
     config.concat(_dnsName);
-    config.concat(R"lit(},{"name": "SSID","id": "ssid","value":)lit");
+    config.concat(R"lit("},{"name": "SSID","id": "ssid","value":")lit");
     config.concat(_ssid);
-    config.concat(R"(},{"name": "Password","id": "password","value":)");
+    config.concat(R"("},{"name": "Password","id": "password","value":")");
     config.concat(_password);
-    config.concat("}]}");
+    config.concat(R"("}]})");
+
+    // NTP configuration
+    config.concat(R"(,{"id":"ntp","title":"Network Synchronized Time","parameters": [)");
+    config.concat(R"({"name": "Pool Server Name","id": "poolServerName","value":")");
+    config.concat(_poolServerName);
+    config.concat(R"lit("},{"name": "Time Offset (hours)","id": "_timeOffset","value":)lit");
+    config.concat(_timeOffset);
+    config.concat(R"lit(},{"name": "Update Interval (ms)","id": "updateInterval","value":)lit");
+    config.concat(_updateInterval);
+    config.concat(R"(}]})");
+
+    config.concat(R"(]})");
     return config;
 }
 

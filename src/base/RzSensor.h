@@ -4,9 +4,8 @@
 #define _RZ_SENSOR_H_
 
 #include <Arduino.h>
-#include "RzFiles.h"
 #include "base/RzComponent.h"
-#include "base/RzConfigurable.h"
+#include "RzFiles.h"
 
 
 // To be removed. Should be some kept in memory, others on disk in flat CSV files
@@ -34,7 +33,7 @@ struct MetricStruct {
     int value;
 };
 
-class RzSensor : public RzComponent, public RzConfigurable {
+class RzSensor : public RzComponent {
 public:
     RzSensor(const char *id, const char *unit, uint precision,
              uint maxSize, ulong maxDelayValues, uint maxComparedValues, uint ignoredDiff);

@@ -74,7 +74,7 @@ void MultiSampling::displayConfig() const {
 String MultiSampling::getJsonConfig() {
     String config;
     config.reserve(340); // Do we need an id?
-    config.concat(R"({"title":"Multi sampling","parameters": [)");
+    config.concat(R"({"id":"multisampling","title":"Multi sampling","parameters": [)");
     config.concat(R"({"name": "Sampling number","id": "size","value":)");
     config.concat(_size);
     config.concat(R"(},{"name": "Remove extremes","id": "extremes","value":)");
@@ -83,7 +83,7 @@ String MultiSampling::getJsonConfig() {
     config.concat(_delaySampling);
     config.concat(R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit");
     config.concat(_delayMeasure);
-    config.concat("}]}");
+    config.concat(R"(}]})");
     return config;
 }
 
