@@ -9,7 +9,7 @@
 #include "tools/LinearCorrection.h"
 #include "tools/MultiSampling.h"
 
-#define TEMPERATURE_PRECISION 11
+//#define TEMPERATURE_PRECISION 11
 
 class RzTemperature : public RzSensor {
 public:
@@ -17,13 +17,13 @@ public:
 
     //RzTemperature(RzFiles &files, uint8_t pin, DeviceAddress deviceAddress);
 
-    void setup();
+    void setup() override;
 
-    void loop(timeMs referenceTime);
+    void loop(timeMs referenceTime) override;
 
-    String getJsonConfig();
+    String getJsonConfig() override;
 
-    virtual ~RzTemperature();
+    ~RzTemperature() override;
 
     const char *getDisplayName() override;
 
@@ -41,10 +41,10 @@ private:
 
     // linear correction tool
     LinearCorrection *_linCor;
-    // Multisampler configuration
+    // Multisampling configuration
     MultiSampling *_multisampling;
     // arrays to hold device addresses
-    DeviceAddress _device;
+    DeviceAddress _device{};
 
     float getTemperature();
 

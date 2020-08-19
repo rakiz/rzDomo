@@ -17,7 +17,7 @@ RzWifi::~RzWifi() {
     delete _wifiMulti;
 }
 
-bool RzWifi::isConnected() {
+bool __unused RzWifi::isConnected() {
     if (strlen(_ssid) == 0 || strlen(_password) == 0) {
         return false;
     }
@@ -204,11 +204,11 @@ String RzWifi::getJsonConfig() { // FIXME: Time configuration is missing here!
 //    return config;
 //}
 
-//Adresse IP local_ip(192,168,1,1)
-//Adresse IP passerelle(192,168,1,1)
-//Adresse IP sous-réseau(255,255,255,0)
+//Address IP local_ip(192,168,1,1)
+//Address IP gateway(192,168,1,1)
+//Address IP subnetwork(255,255,255,0)
 //Wifi.softAP(ssid, mot de passe);
-//Wifi.softAPConfig(local_ip, passerelle, sous-réseau); // <- pont vers internet?!!
+//Wifi.softAPConfig(local_ip, gateway, subnetwork); // <- bridge to internet?!!
 
 // https://github.com/tzapu/WiFiManager
 // https://randomnerdtutorials.com/wifimanager-with-esp8266-autoconnect-custom-parameter-and-manage-your-ssid-and-password/

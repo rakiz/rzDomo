@@ -3,7 +3,7 @@
 #include "network/RzServer.h"
 #include "tools/Tools.h"
 
-RzServer::RzServer(int port, RzComponents &components) : _components(components){
+RzServer::RzServer(int port, RzComponents &components) : _components(components) {
     _server = new ESP8266WebServer(port);
 }
 
@@ -13,15 +13,23 @@ RzServer::~RzServer() {
 
 void RzServer::setup() {
 // HTTP server
-    Serial.println("Setting up web site.");
+    Serial.println(F("Setting up web site."));
     _server->onNotFound([this]() {
 //        Serial.println("File access.");
-        String path = _server->uri();
-        if (path.endsWith("/")) path += "index.html";           // If a folder is requested, send the index file
-        File file = RzFiles::openRead(path);
+        String path;
+
+        String uri = _server->uri();
+        path.reserve(uri.length() + strlen(INDEX_HTML) + 1);
+        path = uri;
+        if (uri.endsWith("/")) {
+            path += INDEX_HTML;           // If a folder is requested, send the index file
+        }
+
+        File file = RzFiles::openRead(path.c_str());
         if (!file) {                 // send it if it exists
-            Serial.println("\tFile Not Found: " + path);
-            _server->send(404, CONTENT_TYPE_TEXT, "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
+            Serial.printf("\tFile Not Found: %s\r\n", path.c_str());
+            _server->send(404, CONTENT_TYPE_TEXT,
+                          F("404: Not Found")); // otherwise, respond with a 404 (Not Found) error
         } else {
             String contentType = getContentType(path);             // Get the MIME type
             size_t sent = _server->streamFile(file, contentType);    // Send it to the client
@@ -100,7 +108,7 @@ uint RzServer::sendMetrics() {
             return true;
         }
 
-        void onValue(String id, int value, int precision) override {
+        void onValue(const char *id, int value, int precision) override {
             _server.sendContent(",\"");
             _server.sendContent(id);
             _server.sendContent("\":");
@@ -217,7 +225,7 @@ uint RzServer::sendComponentConfig() {
     public:
         explicit ConfigVisitor(ESP8266WebServer &server) : _count(0), _server(server) {}
 
-        virtual ~ConfigVisitor() {}
+        virtual ~ConfigVisitor() = default;
 
         void visit(String jsonConfig) override {
             if (_count > 0) _server.sendContent(",");

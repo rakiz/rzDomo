@@ -1,9 +1,7 @@
 #include "RzTemperature.h"
-#include "../tools/LinearCorrection.h"
-#include "base/RzSensor.h"
 
 RzTemperature::RzTemperature(uint8_t pin, const char *id, const char *displayName) :
-        RzSensor(id, "°C", 2, 240, 60*60*1000, 1, 20),
+        RzSensor(id, "°C", 2, 240, 60 * 60 * 1000, 1, 20),
         _displayName(displayName) {
 //    Serial.println("RzTemperature ctor");
 
@@ -68,30 +66,9 @@ void RzTemperature::saveConfiguration() {
 }
 
 /*
-RzTemperature::RzTemperature(RzTime *_myTime, uint8_t _pin, ulong _interval) {
-    myTime = _myTime;
-
-    // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
-    oneWire = OneWire(_pin);
-
-    // Pass our oneWire reference to Dallas Temperature.
-    sensors = DallasTemperature(&oneWire);
-
     // linear correction tool
     linCor = new LinearCorrection(0, 99.3, 0, 99.3);
-
-    // Multisampler configuration
     multisampling = new MultiSampling(14, 2, 25, _interval);
-
-    // for debuggin without sensors pluged in !!
-//    addValue(1595320294, 25.34);
-//    addValue(1595323835, 25.55);
-//    addValue(1595327375, 25.78);
-//    addValue(1595330916, 25.88);
-//    addValue(1595337997, 26);
-//    addValue(1595349970, 26.13);
-
-}
 */
 void RzTemperature::setup() {
     // locate devices on the bus
@@ -158,21 +135,21 @@ float RzTemperature::getTemperature() {
 
 // function to print a device address
 void RzTemperature::printAddress() {
-    for (uint8_t i = 0; i < 8; i++) {
+    for (unsigned char i : _device) {
         // zero pad the address if necessary
-        if (_device[i] < 16) Serial.print("0");
-        Serial.print(_device[i], HEX);
+        if (i < 16) Serial.print("0");
+        Serial.print(i, HEX);
     }
 }
 
 String RzTemperature::getJsonConfig() {
     String config;
     config.reserve(1000);
-    config += "{\"id\": \"";
+    config += R"({"id": ")";
     config += getId();
-    config += "\",\"title\": \"";
+    config += R"(","title": ")";
     config += "Température piscine";
-    config += "\",\"parameters\": [";
+    config += R"(","parameters": [)";
     config += _linCor->getJsonConfig();
     config += ",";
     config += _multisampling->getJsonConfig();

@@ -1,6 +1,6 @@
 #include "RzMemory.h"
 
-RzMemory::RzMemory() : RzSensor("mem", "Bytes", 0, 240, 60*60*1000, 1, 1000) {
+RzMemory::RzMemory() : RzSensor("mem", "Bytes", 0, 240, 60 * 60 * 1000, 1, 1000) {
     RzMemory::loadConfiguration();
 
     _multisampling = new MultiSampling("mem", 14, 2, 25, 60 * 1000);
@@ -16,9 +16,10 @@ void RzMemory::setup() {
 
 void RzMemory::loop(timeMs referenceTime) {
     SamplingHandler func = []() -> int {
-        uint16_t hmax;
-        ESP.getHeapStats(nullptr, &hmax,nullptr);
-        return hmax;
+        //ESP.getFreeHeap()
+        uint16_t hMax;
+        ESP.getHeapStats(nullptr, &hMax, nullptr);
+        return hMax;
     };
 
     int value = _multisampling->sample(millis(), func);

@@ -10,15 +10,15 @@ typedef std::function<int(void)> SamplingHandler;
 class MultiSampling : public RzConfigurable {
 public:
     MultiSampling(const char *id, //
-            int nbSampling, int extremes, ulong delaySampling, ulong delayMeasure);
+                  int nbSampling, int extremes, ulong delaySampling, ulong delayMeasure);
 
     virtual ~MultiSampling();
 
-    int sample(timeMs currentMillis, const SamplingHandler& lambda);
+    int sample(timeMs currentMillis, const SamplingHandler &lambda);
 
     void displayConfig() const;
 
-    String getJsonConfig();
+    String getJsonConfig() override;
 
     void loadConfiguration() override;
 
@@ -45,11 +45,11 @@ private:
     int *_buf;
     int _size;
     int _extremes;
-    int _current;
+    int _current{};
     ulong _delaySampling;
     ulong _delayMeasure;
-    ulong _previousSampling;
-    ulong _previousMeasure;
+    ulong _previousSampling{};
+    ulong _previousMeasure{};
 };
 
 #endif

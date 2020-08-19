@@ -17,7 +17,7 @@
  * https://www.compuphase.com/minini.htm
  * https://github.com/compuphase/minIni
  * https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266mDNS/examples/OTA-mDNS-LittleFS/OTA-mDNS-SPIFFS.ino
- * https://www.megunolink.com/documentation/connecting/mdns-browser/ <- could be used to conecct ESP together (mdns is not working from browser)
+ * https://www.megunolink.com/documentation/connecting/mdns-browser/ <- could be used to connect ESP together (mdns is not working from browser)
  * String error = String();
  * error += F("!NO_LEADING_SLASH! ");
  */
@@ -73,7 +73,7 @@ void setup() {
 // the loop function runs over and over again forever
 void loop() {
     timeMs now = wifi->getTime();
-    while(wifi->isTimeSynchronized() && now<MIN_TIMESTAMP) { // wait for time synchro
+    while (wifi->isTimeSynchronized() && now < MIN_TIMESTAMP) { // wait for time synchro
         delay(1000);
         now = wifi->getTime();
     }

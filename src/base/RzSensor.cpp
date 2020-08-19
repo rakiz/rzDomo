@@ -2,9 +2,10 @@
 #include "base/RzSensor.h"
 
 RzSensor::RzSensor(const char *id, const char *unit, uint precision,
-                   uint maxSize, ulong maxDelayValues, uint maxComparedValues, uint ignoredDiff):
+                   uint maxSize, ulong maxDelayValues, uint maxComparedValues, uint ignoredDiff) :
         _id(id), _unit(unit), _precision(precision),
-        _maxSize(maxSize), _maxDelayValues(maxDelayValues), _maxComparedValues(maxComparedValues), _ignoredDiff(ignoredDiff) {
+        _maxSize(maxSize), _maxDelayValues(maxDelayValues), _maxComparedValues(maxComparedValues),
+        _ignoredDiff(ignoredDiff) {
     RzSensor::loadConfiguration();
     _size = 0;
     _values = new MetricStruct[_maxSize];
@@ -50,7 +51,7 @@ bool RzSensor::hasValueToBeAdded(timeMs time, int value) {
     return addNewValue;
 }
 
-double RzSensor::convertValue(int value) const {
+__unused double RzSensor::convertValue(int value) const {
     return (float) (value / pow(10, _precision));
 }
 

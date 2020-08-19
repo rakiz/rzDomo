@@ -9,9 +9,12 @@
 
 #define SRV_PORT 80
 
+static const char *const INDEX_HTML = "index.html";
+
 class RzServer : public RzComponent {
 public:
     RzServer(int port, RzComponents &components);
+
     virtual ~RzServer();
 
     void setup() override;

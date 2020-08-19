@@ -1,6 +1,6 @@
 #include "Tools.h"
 
-String getContentType(String filename) {
+String getContentType(const String &filename) {
     if (filename.endsWith(".htm") || filename.endsWith(".html")) return CONTENT_TYPE_HTML;
     if (filename.endsWith(".css")) return CONTENT_TYPE_CSS;
     if (filename.endsWith(".js")) return CONTENT_TYPE_JAVASCRIPT;
@@ -17,13 +17,20 @@ String getContentType(String filename) {
 }
 
 String formatBytes(size_t bytes) { // convert sizes in bytes to KB and MB
+    String size;
+    size.reserve(10);
     if (bytes < 1024) {
-        return String(bytes) + "B";
+        size = String((long) bytes);
+        size += "B";
     } else if (bytes < (1024 * 1024)) {
-        return String(bytes / 1024.0) + "KB";
+        size = String(bytes / 1024.0);
+        size += "KB";
     } else if (bytes < (1024 * 1024 * 1024)) {
-        return String(bytes / 1024.0 / 1024.0) + "MB";
+        size = String(bytes / 1024.0 / 1024.0);
+        size += "MB";
     } else {
-        return String(bytes / 1024.0 / 1024.0 / 1024.0) + "GB";
+        size = String(bytes / 1024.0 / 1024.0 / 1024.0);
+        size += "GB";
     }
+    return size;
 }

@@ -17,7 +17,7 @@ float LinearCorrection::fixValue(float rawValue) const {
     return (((rawValue - _rawLow) * _refRange) / _rawRange) + _refLow;
 }
 
-void LinearCorrection::displayConfig() {
+void LinearCorrection::displayConfig() const {
     Serial.printf("LinearCorrection(refLow: %.2f, rawLow: %.2f, refHigh: %.2f, rawHigh: %.2f)\r\n", //
                   _refLow, _rawLow, _refHigh, _rawHigh);
 }
@@ -74,6 +74,4 @@ const char *LinearCorrection::getPrefix() {
     return "LinearCorrection";
 }
 
-LinearCorrection::~LinearCorrection() {
-
-}
+LinearCorrection::~LinearCorrection() = default;

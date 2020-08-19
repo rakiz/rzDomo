@@ -8,9 +8,9 @@ class RzMemory : public RzSensor {
 public:
     RzMemory();
 
-    void setup();
+    void setup() override;
 
-    void loop(timeMs referenceTime);
+    void loop(timeMs referenceTime) override;
 
     const char *getDisplayName() override;
 
@@ -25,7 +25,7 @@ public:
     const char *getPrefix() override;
 
 private:
-    // Multisampler configuration
+    // Multisampling configuration
     MultiSampling *_multisampling;
 
 

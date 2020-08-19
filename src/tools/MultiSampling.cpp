@@ -2,7 +2,7 @@
 
 
 MultiSampling::MultiSampling(const char *id, //
-        int nbSampling, int extremes, ulong delaySampling, ulong delayMeasure) :
+                             int nbSampling, int extremes, ulong delaySampling, ulong delayMeasure) :
         _id(id), _size(nbSampling), _extremes(extremes), _delaySampling(delaySampling), _delayMeasure(delayMeasure) {
     MultiSampling::loadConfiguration();
     _buf = new int[_size];
@@ -48,7 +48,7 @@ int MultiSampling::getFinalValue() {
     return finalValue;
 }
 
-int MultiSampling::sample(timeMs currentMillis, const SamplingHandler& _lambda) {
+int MultiSampling::sample(timeMs currentMillis, const SamplingHandler &_lambda) {
     if (_previousMeasure > 0 && currentMillis - _previousMeasure < _delayMeasure) {
         return INT32_MIN; // Measures will have to wait
     }
@@ -67,7 +67,7 @@ int MultiSampling::sample(timeMs currentMillis, const SamplingHandler& _lambda) 
 
 void MultiSampling::displayConfig() const {
     Serial.printf(
-            "MultiSampling(nb sampling: %i, remove extrems: %i, delay between measures: %lu, delay between samplings: %lu)\r\n",
+            "MultiSampling(nb sampling: %i, remove extremes: %i, delay between measures: %lu, delay between samplings: %lu)\r\n",
             _size, _extremes, _delayMeasure, _delaySampling);
 }
 

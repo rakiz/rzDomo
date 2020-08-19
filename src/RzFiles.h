@@ -20,9 +20,9 @@ public:
 
     const char *getPrefix() override;
 
-    static File openRead(String path);
+    static File openRead(const char *path);
 
-    static File openWrite(String path);
+    static File openWrite(const char *path);
 
 private:
 };

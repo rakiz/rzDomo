@@ -17,7 +17,7 @@ public:
 
     virtual ~RzWifi();
 
-    bool isConnected();
+    bool __unused isConnected();
 
     void setup() override;
 
@@ -39,17 +39,17 @@ public:
 
     ulong getTime();
 
-    String formatDate(timeMs time);
+    static String formatDate(timeMs time);
 
     inline bool isTimeSynchronized() const { return _isTimeSynchronized; }
 
 
 private:
     //Week Days
-    const char *_weekDays[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+    //const char *_weekDays[7] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
     //Month names
-    const char *_months[12] = {"January", "February", "March", "April", "May", "June",
-                               "July", "August", "September", "October", "November", "December"};
+    //const char *_months[12] = {"January", "February", "March", "April", "May", "June",
+    //                           "July", "August", "September", "October", "November", "December"};
 
     bool _isTimeSynchronized = false;
 
@@ -67,7 +67,7 @@ private:
     uint _timeOffset = 0;
     uint _updateInterval = 60000;  // In ms
 
-    void initSoftAP();
+    static void initSoftAP();
 
 };
 

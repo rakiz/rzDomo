@@ -1,5 +1,5 @@
-#ifndef _MYTOOLS_H_
-#define _MYTOOLS_H_
+#ifndef _TOOLS_H_
+#define _TOOLS_H_
 
 #include <Arduino.h>
 
@@ -17,12 +17,12 @@
 #define CONTENT_TYPE_JPEG           F("image/jpeg")
 #define CONTENT_TYPE_ICON           F("image/x-icon")
 
-String getContentType(String _filename);
+String getContentType(const String &_filename);
 
 String formatBytes(size_t _bytes);
 
 template<typename Base, typename T>
-inline bool instanceof(const T*) {
+inline bool instanceof(const T *) {
     return std::is_base_of<Base, T>::value;
 }
 

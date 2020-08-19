@@ -4,24 +4,24 @@
 #include <base/RzConfigurable.h>
 #include "RzFiles.h"
 
-const float DEFAULT_REF_LOW = 0;
-const float DEFAULT_RAW_LOW = 0;
-const float DEFAULT_REF_HIGH = 100;
-const float DEFAULT_RAW_HIGH = 100;
+//const float DEFAULT_REF_LOW = 0;
+//const float DEFAULT_RAW_LOW = 0;
+//const float DEFAULT_REF_HIGH = 100;
+//const float DEFAULT_RAW_HIGH = 100;
 
 class LinearCorrection : public RzConfigurable {
 public:
     LinearCorrection(const char *id, //
-            float refLow, float refHigh, float rawLow, float rawHigh);
+                     float refLow, float refHigh, float rawLow, float rawHigh);
 
     virtual ~LinearCorrection();
 
     float fixValue(float) const;
 
-    void displayConfig();
+    void displayConfig() const;
 
     // -=[ RzConfigurable ]=---------------------------
-    String getJsonConfig();
+    String getJsonConfig() override;
 
     void loadConfiguration() override;
 

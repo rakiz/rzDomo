@@ -1,3 +1,5 @@
+#include <sys/cdefs.h>
+
 #ifndef _RZ_SENSOR_H_
 #define _RZ_SENSOR_H_
 
@@ -34,7 +36,7 @@ struct MetricStruct {
 
 class RzSensor : public RzComponent, public RzConfigurable {
 public:
-    RzSensor(const char* id, const char *unit, uint precision,
+    RzSensor(const char *id, const char *unit, uint precision,
              uint maxSize, ulong maxDelayValues, uint maxComparedValues, uint ignoredDiff);
 
     virtual ~RzSensor() = 0;
@@ -45,7 +47,7 @@ public:
 
     int convertValue(double value) const;
 
-    double convertValue(int value) const;
+    __unused  double convertValue(int value) const;
 
     inline uint getPrecision() const { return _precision; }
 
