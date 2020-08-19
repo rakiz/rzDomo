@@ -9,10 +9,6 @@ LinearCorrection::LinearCorrection(const char *id, //
     _rawRange = rawHigh - rawLow;
 }
 
-//LinearCorrection::LinearCorrection(RzFiles &files, char *id) {
-//    LinearCorrection::loadConfiguration(files ,id);
-//}
-
 float LinearCorrection::fixValue(float rawValue) const {
     return (((rawValue - _rawLow) * _refRange) / _rawRange) + _refLow;
 }
@@ -25,16 +21,16 @@ void LinearCorrection::displayConfig() const {
 String LinearCorrection::getJsonConfig() {
     String config;
     config.reserve(300); // Do we need an id?
-    config += R"({"title":"Linear correction","parameters": [)";
-    config += R"({"name": "Reference low","id": "refLow","value":)";
-    config += _refLow;
-    config += R"(},{"name": "Measured low","id": "rawLow","value":)";
-    config += _rawLow;
-    config += R"(},{"name": "Reference high","id": "refHigh","value":)";
-    config += _refHigh;
-    config += R"(},{"name": "Measured high","id": "rawHigh","value":)";
-    config += _rawHigh;
-    config += "}]}";
+    config.concat(R"({"title":"Linear correction","parameters": [)");
+    config.concat(R"({"name": "Reference low","id": "refLow","value":)");
+    config.concat(_refLow);
+    config.concat(R"(},{"name": "Measured low","id": "rawLow","value":)");
+    config.concat(_rawLow);
+    config.concat(R"(},{"name": "Reference high","id": "refHigh","value":)");
+    config.concat(_refHigh);
+    config.concat(R"(},{"name": "Measured high","id": "rawHigh","value":)");
+    config.concat(_rawHigh);
+    config.concat("}]}");
     return config;
 }
 

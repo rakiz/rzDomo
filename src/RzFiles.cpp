@@ -4,7 +4,7 @@
 void RzFiles::setup() { // Start the SPIFFS and list all contents
     SPIFFS.begin();                             // Start the SPI Flash File System (SPIFFS)
     {
-        Serial.println("SPIFFS started.");
+        Serial.println(F("SPIFFS started."));
         FSInfo fs_info{};
         SPIFFS.info(fs_info);
 
@@ -17,7 +17,7 @@ void RzFiles::setup() { // Start the SPIFFS and list all contents
 
     {
         char buffer[80];
-        Serial.println("Contents:");
+        Serial.println(F("Contents:"));
         Dir dir = SPIFFS.openDir("/");
         while (dir.next()) {                      // List the file system contents
             String fileName = dir.fileName();
@@ -29,7 +29,7 @@ void RzFiles::setup() { // Start the SPIFFS and list all contents
             Serial.printf("\tFS File: %s, created: %s, size: %s (%s)\r\n", fileName.c_str(), buffer,
                           formatBytes(fileSize).c_str(), contentType.c_str());
         }
-        Serial.printf("\n");
+        Serial.println();
     }
 }
 

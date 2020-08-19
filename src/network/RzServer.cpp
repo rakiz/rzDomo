@@ -15,7 +15,6 @@ void RzServer::setup() {
 // HTTP server
     Serial.println(F("Setting up web site."));
     _server->onNotFound([this]() {
-//        Serial.println("File access.");
         String path;
 
         String uri = _server->uri();
@@ -27,7 +26,7 @@ void RzServer::setup() {
 
         File file = RzFiles::openRead(path.c_str());
         if (!file) {                 // send it if it exists
-            Serial.printf("\tFile Not Found: %s\r\n", path.c_str());
+            Serial.printf(R"(\tFile Not Found: %s\r\n)", path.c_str());
             _server->send(404, CONTENT_TYPE_TEXT,
                           F("404: Not Found")); // otherwise, respond with a 404 (Not Found) error
         } else {
@@ -38,19 +37,17 @@ void RzServer::setup() {
                           contentType.c_str());
         }
     });
-    Serial.println("Setting up /api/metrics API.");
+    Serial.println(F("Setting up /api/metrics API."));
     _server->on("/api/metrics", HTTP_ANY, [this] {
-//        Serial.println("/api/metrics API access.");
         handleMetrics();
     });
-    Serial.println("Setting up /api/config API.");
+    Serial.println(F("Setting up /api/config API."));
     _server->on("/api/config", HTTP_ANY, [this] {
-//        Serial.println("/api/config API access.");
         handleComponentConfig();
     });
 
     _server->begin();                           // Actually start the server
-    Serial.print("HTTP server started on port: ");
+    Serial.print(F("HTTP server started on port: "));
     Serial.println(SRV_PORT);
 }
 
@@ -102,7 +99,10 @@ uint RzServer::sendMetrics() {
                 _server.sendContent("},"); // we have to finish previous bloc
             }
             _server.sendContent("{\"ts\":");
-            sprintf(_buf, "%lu", time);
+            int ret = snprintf(_buf, sizeof _buf, "%lu", time);
+            if (ret < 0 || ret >= (int) sizeof _buf) {
+                Serial.printf("Error while creating string of time: %lu\r\n", time);
+            }
             _server.sendContent(_buf);
             _count++;
             return true;
@@ -112,11 +112,15 @@ uint RzServer::sendMetrics() {
             _server.sendContent(",\"");
             _server.sendContent(id);
             _server.sendContent("\":");
+            int ret;
             if (precision == 0) {
-                sprintf(_buf, "%d", value);
+                ret = snprintf(_buf, sizeof _buf, "%d", value);
             } else {
                 // FIXME: precision fixed a 2 + no bool support
-                sprintf(_buf, "%.2f", (float) value / pow(10, precision));
+                ret = snprintf(_buf, sizeof _buf, "%.2f", (float) value / pow(10, precision));
+            }
+            if (ret < 0 || ret >= (int) sizeof _buf) {
+                Serial.printf("Error while converting value to string: %d\r\n", value);
             }
             _server.sendContent(_buf);
         }
@@ -227,7 +231,7 @@ uint RzServer::sendComponentConfig() {
 
         virtual ~ConfigVisitor() = default;
 
-        void visit(String jsonConfig) override {
+        void visit(const String &jsonConfig) override {
             if (_count > 0) _server.sendContent(",");
             _server.sendContent(jsonConfig);
             _count++;
@@ -245,7 +249,7 @@ uint RzServer::sendComponentConfig() {
 
     auto *pVisitor = new ConfigVisitor(*_server);
     _server->sendContent("[");
-    _components.visitConfigurables(*pVisitor);
+    _components.visitConfigurable(*pVisitor);
     uint nb = pVisitor->getCount();
     _server->sendContent("]");
     delete pVisitor;

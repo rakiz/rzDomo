@@ -27,7 +27,7 @@ public:
 
 class RzConfigurableVisitor {
 public:
-    virtual void visit(String jsonConfig) = 0;
+    virtual void visit(const String &jsonConfig) = 0;
 };
 
 
@@ -37,7 +37,7 @@ public:
 
     void visitSensorChartConfig(RzSensorChartConfigVisitor &visitor);
 
-    void visitConfigurables(RzConfigurableVisitor &visitor);
+    void visitConfigurable(RzConfigurableVisitor &visitor);
 
 //    void setup();
     void loop(timeMs currentMillis);

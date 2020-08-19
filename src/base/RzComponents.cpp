@@ -27,7 +27,7 @@ void RzComponents::visitSensorChartConfig(RzSensorChartConfigVisitor &visitor) {
     }
 }
 
-void RzComponents::visitConfigurables(RzConfigurableVisitor &visitor) {
+void RzComponents::visitConfigurable(RzConfigurableVisitor &visitor) {
     for (auto &_component : _components) {
         if (instanceof<RzConfigurable>(_component)) {
             auto *configurable = (RzConfigurable *) _component;

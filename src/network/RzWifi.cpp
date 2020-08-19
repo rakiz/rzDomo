@@ -26,13 +26,13 @@ bool __unused RzWifi::isConnected() {
 
 void RzWifi::setup() {
     if (strlen(_ssid) == 0 || strlen(_password) == 0) {
-        Serial.println("Wifi Station disabled.");
+        Serial.println(F("Wifi Station disabled."));
         WiFi.mode(WIFI_AP);
         initSoftAP();
         return;
     }
 
-    Serial.println("Wifi Station enabled.");
+    Serial.println(F("Wifi Station enabled."));
     WiFi.mode(WIFI_AP_STA);
     initSoftAP();
 
@@ -47,22 +47,22 @@ void RzWifi::setup() {
         Serial.print('.');
     }
     if (_wifiMulti->run() == WL_CONNECTED) {
-        Serial.println("Connection established!");
+        Serial.println(F("Connection established!"));
 //        Serial.print("Connected to ");
 //        Serial.println(WiFi.SSID());              // Tell us what network we're connected to
-        Serial.print("IP address:\t");
+        Serial.print(F("IP address:\t"));
         Serial.println(WiFi.localIP());         // Send the IP address of the ESP8266 to the computer
 
         if (!MDNS.begin(_dnsName)) {             // Start the mDNS responder for esp8266.local
-            Serial.println("Error setting up MDNS responder!");
+            Serial.println(F("Error setting up MDNS responder!"));
         }
-        Serial.print("mDNS responder started: ");
+        Serial.print(F("mDNS responder started: "));
         Serial.println(_dnsName);
 
         // NTP setup
         _timeClient->begin();
         // Sometimes the NTPClient retrieves the year of 1970. To ensure that doesnt happen we force the update.
-        Serial.print("Trying to synchronizing time");
+        Serial.print(F("Trying to synchronizing time"));
         if (!_timeClient->update()) { // while
             Serial.print(".");
             _timeClient->forceUpdate();
@@ -72,7 +72,7 @@ void RzWifi::setup() {
         Serial.printf("\r\nTime is synchronized: %s\r\n", formatDate(getTime()).c_str());
 
     } else {
-        Serial.println("Connection failed!");
+        Serial.println(F("Connection failed!"));
     }
 
 //  Serial.println("Sending mDNS Query");
@@ -106,9 +106,16 @@ void RzWifi::initSoftAP() {
 
     uint16_t uChipId = ESP.getChipId();
     char accessPointName[20];
+    int ret = snprintf(accessPointName, sizeof accessPointName, "ESP8266.4.1-%X", uChipId);
+    if (ret < 0 || ret >= (int) sizeof accessPointName) {
+        Serial.println(F("Error while generating accessPointName"));
+    }
+
     char accessPointPassword[20];
-    sprintf(accessPointName, "ESP8266.4.1-%X", uChipId);
-    sprintf(accessPointPassword, "cornichon-%X", uChipId);
+    ret = snprintf(accessPointPassword, sizeof accessPointPassword, "cornichon-%X", uChipId);
+    if (ret < 0 || ret >= (int) sizeof accessPointPassword) {
+        Serial.printf("Error while generating accessPointPassword\r\n");
+    }
 
     //Serial.print("Setting soft-AP configuration ... ");
     //Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!");
@@ -129,10 +136,12 @@ String RzWifi::formatDate(timeMs time) {
 
     struct tm *ptm = gmtime((time_t *) &time);
     char buffer[25];
-    //int len=
-    sprintf(buffer, "%04d-%02d-%02dT%02d:%02d:%02dZ", ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday,
-            ptm->tm_hour,
-            ptm->tm_min, ptm->tm_sec);
+    int ret = snprintf(buffer, sizeof buffer, "%04d-%02d-%02dT%02d:%02d:%02dZ",  //
+                       ptm->tm_year + 1900, ptm->tm_mon + 1, ptm->tm_mday,       //
+                       ptm->tm_hour, ptm->tm_min, ptm->tm_sec);
+    if (ret < 0 || ret >= (int) sizeof buffer) {
+        Serial.printf("Error while formatting date\r\n");
+    }
     return String(buffer);
 }
 
@@ -180,29 +189,17 @@ const char *RzWifi::getPrefix() {
 String RzWifi::getJsonConfig() { // FIXME: Time configuration is missing here!
     String config;
     config.reserve(340); // Do we need an id?
-    config += R"({"title":"Wifi","parameters": [)";
-    config += R"({"name": "Dns Name","id": "dnsName","value":)";
-    config += _dnsName;
-    config += R"lit(},{"name": "SSID","id": "ssid","value":)lit";
-    config += _ssid;
-    config += R"(},{"name": "Password","id": "password","value":)";
-    config += _password;
-    config += "}]}";
+    config.concat(R"({"title":"Wifi","parameters": [)");
+    config.concat(R"({"name": "Dns Name","id": "dnsName","value":)");
+    config.concat(_dnsName);
+    config.concat(R"lit(},{"name": "SSID","id": "ssid","value":)lit");
+    config.concat(_ssid);
+    config.concat(R"(},{"name": "Password","id": "password","value":)");
+    config.concat(_password);
+    config.concat("}]}");
     return config;
 }
-//String RzTime::getJsonConfig() {
-//    String config;
-//    config.reserve(340); // Do we need an id?
-//    config += R"({"title":"Network Time Protocol","parameters": [)";
-//    config += R"({"name": "Server address","id": "poolServerName","value":)";
-//    config += _poolServerName;
-//    config += R"(},{"name": "Time Offset","id": "timeOffset","value":)";
-//    config += _timeOffset;
-//    config += R"lit(},{"name": "Update Interval (ms)","id": "updateInterval","value":)lit";
-//    config += _updateInterval;
-//    config += "}]}";
-//    return config;
-//}
+
 
 //Address IP local_ip(192,168,1,1)
 //Address IP gateway(192,168,1,1)

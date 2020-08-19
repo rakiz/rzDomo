@@ -74,16 +74,16 @@ void MultiSampling::displayConfig() const {
 String MultiSampling::getJsonConfig() {
     String config;
     config.reserve(340); // Do we need an id?
-    config += R"({"title":"Multi sampling","parameters": [)";
-    config += R"({"name": "Sampling number","id": "size","value":)";
-    config += _size;
-    config += R"(},{"name": "Remove extremes","id": "extremes","value":)";
-    config += _extremes;
-    config += R"lit(},{"name": "Delay between samples (ms)","id": "delaySampling","value":)lit";
-    config += _delaySampling;
-    config += R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit";
-    config += _delayMeasure;
-    config += "}]}";
+    config.concat(R"({"title":"Multi sampling","parameters": [)");
+    config.concat(R"({"name": "Sampling number","id": "size","value":)");
+    config.concat(_size);
+    config.concat(R"(},{"name": "Remove extremes","id": "extremes","value":)");
+    config.concat(_extremes);
+    config.concat(R"lit(},{"name": "Delay between samples (ms)","id": "delaySampling","value":)lit");
+    config.concat(_delaySampling);
+    config.concat(R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit");
+    config.concat(_delayMeasure);
+    config.concat("}]}");
     return config;
 }
 

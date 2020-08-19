@@ -89,16 +89,16 @@ void RzSensor::saveConfiguration() {
 String RzSensor::getJsonConfig() {
     String config;
     config.reserve(340); // Do we need an id?
-    config += R"({"title":"Sensor","parameters": [)";
-    config += R"({"name": "Max kept values","id": "maxSize","value":)";
-    config += _maxSize;
-    config += R"lit(},{"name": "Max delay between values (ms)","id": "maxDelayValues","value":)lit";
-    config += _maxDelayValues;
-    config += R"(},{"name": "Max compared values","id": "maxComparedValues","value":)";
-    config += _maxComparedValues;
-    config += R"(},{"name": "Ignored difference","id": "ignoredDiff","value":)";
-    config += _ignoredDiff;
-    config += "}]}";
+    config.concat(R"({"title":"Sensor","parameters": [)");
+    config.concat(R"({"name": "Max kept values","id": "maxSize","value":)");
+    config.concat(_maxSize);
+    config.concat(R"lit(},{"name": "Max delay between values (ms)","id": "maxDelayValues","value":)lit");
+    config.concat(_maxDelayValues);
+    config.concat(R"(},{"name": "Max compared values","id": "maxComparedValues","value":)");
+    config.concat(_maxComparedValues);
+    config.concat(R"(},{"name": "Ignored difference","id": "ignoredDiff","value":)");
+    config.concat(_ignoredDiff);
+    config.concat("}]}");
     return config;
 }
 

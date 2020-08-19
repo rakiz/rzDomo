@@ -41,7 +41,8 @@ void setup() {
     delay(100);
 
     uint16_t uChipId = ESP.getChipId();
-    Serial.printf("Booting Chip: %X\r\n", uChipId);
+    Serial.print(F("Booting Chip: "));
+    Serial.printf("%X\r\n", uChipId);
 
     // initialize digital pin LED_BUILTIN as an output.
     pinMode(LED_BUILTIN, OUTPUT);
@@ -66,7 +67,7 @@ void setup() {
 //    components.setup();
 
     Serial.println();
-    Serial.println("Node is started and ready to rumble.");
+    Serial.println(F("Node is started and ready to rumble."));
     Serial.println();
 }
 

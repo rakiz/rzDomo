@@ -3,7 +3,6 @@
 RzTemperature::RzTemperature(uint8_t pin, const char *id, const char *displayName) :
         RzSensor(id, "°C", 2, 240, 60 * 60 * 1000, 1, 20),
         _displayName(displayName) {
-//    Serial.println("RzTemperature ctor");
 
     RzTemperature::loadConfiguration();
 
@@ -18,19 +17,19 @@ RzTemperature::RzTemperature(uint8_t pin, const char *id, const char *displayNam
     // Pass our oneWire reference to Dallas Temperature.
     _sensors = new DallasTemperature(_oneWire);
 
-    Serial.print("Locating devices...");
+    Serial.print(F("Locating devices..."));
     _sensors->begin();
 
-    Serial.print("Found ");
+    Serial.print(F("Found "));
     Serial.print(_sensors->getDeviceCount(), DEC);
-    Serial.println(" devices.");
+    Serial.println(F(" devices."));
 
     _oneWire->reset_search();
     // assigns the first address found to insideThermometer
-    if (!_oneWire->search(_device)) Serial.println("Unable to find address for thermometer");
+    if (!_oneWire->search(_device)) Serial.println(F("Unable to find address for thermometer"));
     else {
         // show the addresses we found on the bus
-        Serial.print("Device 0 Address: ");
+        Serial.print(F("Device 0 Address: "));
         printAddress();
     }
 }
@@ -72,23 +71,23 @@ void RzTemperature::saveConfiguration() {
 */
 void RzTemperature::setup() {
     // locate devices on the bus
-    Serial.print("Locating devices...");
+    Serial.print(F("Locating devices..."));
     _sensors->begin();
-    Serial.print("Found ");
+    Serial.print(F("Found "));
     Serial.print(_sensors->getDeviceCount(), DEC);
-    Serial.println(" devices.");
+    Serial.println(F(" devices."));
 
     // report parasite power requirements
-    Serial.print("Parasite power is: ");
-    if (_sensors->isParasitePowerMode()) Serial.println("ON");
-    else Serial.println("OFF");
+    Serial.print(F("Parasite power is: "));
+    if (_sensors->isParasitePowerMode()) Serial.println(F("ON"));
+    else Serial.println(F("OFF"));
 
     _oneWire->reset_search();
     // assigns the first address found to insideThermometer
-    if (!_oneWire->search(_device)) Serial.println("Unable to find address for thermometer");
+    if (!_oneWire->search(_device)) Serial.println(F("Unable to find address for thermometer"));
 
     // show the addresses we found on the bus
-    Serial.print("Device 0 Address: ");
+    Serial.print(F("Device 0 Address: "));
     printAddress();
     Serial.println();
     _linCor->displayConfig();
@@ -97,7 +96,7 @@ void RzTemperature::setup() {
     // set the resolution to 9 bit per device
     //sensors.setResolution(thermometer, TEMPERATURE_PRECISION);
 
-    Serial.print("Device 0 Resolution: ");
+    Serial.print(F("Device 0 Resolution: "));
     Serial.print(_sensors->getResolution(_device), DEC);
     Serial.println();
 }
@@ -126,7 +125,7 @@ const char *RzTemperature::getPrefix() {
 float RzTemperature::getTemperature() {
     float tempC = _sensors->getTempC(_device);
     if (tempC == DEVICE_DISCONNECTED_C) {
-        Serial.println("Error: Could not read temperature data");
+        Serial.println(F("Error: Could not read temperature data"));
         return -1;
     }
     return _linCor->fixValue(tempC);
@@ -145,14 +144,14 @@ void RzTemperature::printAddress() {
 String RzTemperature::getJsonConfig() {
     String config;
     config.reserve(1000);
-    config += R"({"id": ")";
-    config += getId();
-    config += R"(","title": ")";
-    config += "Température piscine";
-    config += R"(","parameters": [)";
-    config += _linCor->getJsonConfig();
-    config += ",";
-    config += _multisampling->getJsonConfig();
-    config += "]}";
+    config.concat(R"({"id": ")");
+    config.concat(getId());
+    config.concat(R"(","title": ")");
+    config.concat("Température piscine");
+    config.concat(R"(","parameters": [)");
+    config.concat(_linCor->getJsonConfig());
+    config.concat(",");
+    config.concat(_multisampling->getJsonConfig());
+    config.concat("]}");
     return config;
 }

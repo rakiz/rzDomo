@@ -21,16 +21,16 @@ String formatBytes(size_t bytes) { // convert sizes in bytes to KB and MB
     size.reserve(10);
     if (bytes < 1024) {
         size = String((long) bytes);
-        size += "B";
+        size.concat("B");
     } else if (bytes < (1024 * 1024)) {
         size = String(bytes / 1024.0);
-        size += "KB";
+        size.concat("KB");
     } else if (bytes < (1024 * 1024 * 1024)) {
         size = String(bytes / 1024.0 / 1024.0);
-        size += "MB";
+        size.concat("MB");
     } else {
         size = String(bytes / 1024.0 / 1024.0 / 1024.0);
-        size += "GB";
+        size.concat("GB");
     }
     return size;
 }
