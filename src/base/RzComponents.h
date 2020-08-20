@@ -43,9 +43,11 @@ public:
     void loop(timeMs currentMillis);
 
     void add(RzComponent *component);
+    void add(RzSensor *sensor);
 
 private:
     std::vector<RzComponent *> _components;
+    std::vector<RzSensor *> _sensors;
 };
 
 #endif

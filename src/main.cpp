@@ -19,6 +19,7 @@
  * https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266mDNS/examples/OTA-mDNS-LittleFS/OTA-mDNS-SPIFFS.ino
  * https://www.megunolink.com/documentation/connecting/mdns-browser/ <- could be used to connect ESP together (mdns is not working from browser)
  * https://majenko.co.uk/blog/evils-arduino-strings
+ * https://hackaday.com/2017/05/05/using-modern-c-techniques-with-arduino/
  */
 #include <Arduino.h>
 

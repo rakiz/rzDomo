@@ -6,39 +6,37 @@ void RzComponents::add(RzComponent *component) {
     component->setup();
 }
 
+void RzComponents::add(RzSensor *sensor) {
+    _sensors.push_back(sensor);
+    _components.push_back(sensor);
+    sensor->setup();
+}
+
 void RzComponents::visitSensorValues(RzSensorValueVisitor &visitor) {
-    for (auto &_component : _components) {
-        if (myTools::instanceof<RzSensor>(_component)) {
-            auto *sensor = (RzSensor *) _component;
-            if (visitor.onTime(0)) {   // FIXME: I need to get the time
-                visitor.onValue(sensor->RzComponent::getId(), 0,
-                                sensor->getPrecision()); // FIXME: I need to get the value
-            }
+    for (auto &sensor : _sensors) {
+        Serial.printf("Component %s is a Sensor.\r\n", sensor->getDisplayName());
+        if (visitor.onTime(0)) {   // FIXME: I need to get the time
+            visitor.onValue(sensor->getId(), 0, sensor->getPrecision()); // FIXME: I need to get the value
         }
     }
 }
 
 void RzComponents::visitSensorChartConfig(RzSensorChartConfigVisitor &visitor) {
-    for (auto &_component : _components) {
-        if (myTools::instanceof<RzSensor>(_component)) {
-            auto *sensor = (RzSensor *) _component;
-            visitor.visit(sensor->RzComponent::getId(), sensor->RzComponent::getDisplayName(), sensor->getUnit());
-        }
+    for (auto &sensor : _sensors) {
+        Serial.printf("Component %s is a Sensor.\r\n", sensor->getDisplayName());
+        visitor.visit(sensor->getId(), sensor->getDisplayName(), sensor->getUnit());
     }
 }
 
 void RzComponents::visitConfigurable(RzConfigurableVisitor &visitor) {
     for (auto &_component : _components) {
-        if (myTools::instanceof<RzConfigurable>(_component)) {
-            auto *configurable = (RzConfigurable *) _component;
-            const char *jsonConfig = configurable->getJsonConfig();
-            size_t len = strlen(jsonConfig);
-            if (len > 0) {
-                Serial.printf("Component %s configurable (config size=%d).\r\n", _component->getDisplayName(), len);
-                visitor.visit(jsonConfig);
-            }
-            delete[] jsonConfig;
+        const char *jsonConfig = _component->getJsonConfig();
+        size_t len = strlen(jsonConfig);
+        if (len > 0) {
+            Serial.printf("Component %s is configurable (config size=%zu).\r\n", _component->getDisplayName(), len);
+            visitor.visit(jsonConfig);
         }
+        delete[] jsonConfig;
     }
 }
 

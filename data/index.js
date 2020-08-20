@@ -1,4 +1,4 @@
-const serverAddress = "http://piscine"; // "http://192.168.1.56"; //
+const serverAddress =  "http://192.168.1.56"; //"http://piscine";
 
 window.onload = function () {
     if (!window.fetch) {
