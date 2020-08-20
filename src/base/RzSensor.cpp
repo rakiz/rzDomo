@@ -88,19 +88,19 @@ void RzSensor::saveConfiguration() {
 
 String RzSensor::getJsonConfig() {
     String config;
-    config.reserve(340); // Do we need an id?
-    config.concat(R"({"id":"sensor","title":"Sensor","parameters": [)");
-    config.concat(R"({"name": "Max kept values","id": "maxSize","value":)");
+    config.reserve(512); // Do we need an id?
+    config.concat(F(R"({"id":"sensor","title":"Sensor","parameters": [)"));
+    config.concat(F(R"({"name": "Max kept values","id": "maxSize","value":)"));
     config.concat(_maxSize);
-    config.concat(R"lit(},{"name": "Delay between values (ms)","id": "maxDelayValues","value":)lit");
+    config.concat(F(R"lit(},{"name": "Delay between measures (ms)","id": "maxDelayValues","value":)lit"));
     config.concat(_maxDelayValues);
-    config.concat(R"(},{"name": "Max compared values","id": "maxComparedValues","value":)");
+    config.concat(F(R"(},{"name": "Max compared values","id": "maxComparedValues","value":)"));
     config.concat(_maxComparedValues);
-    config.concat(R"(},{"name": "Ignored difference","id": "ignoredDiff","value":)");
+    config.concat(F(R"(},{"name": "Ignored difference","id": "ignoredDiff","value":)"));
     config.concat(_ignoredDiff);
-    config.concat(R"(},{"name": "Precision","id": "precision", "access":"readonly", "value":)");
+    config.concat(F(R"(},{"name": "Precision","id": "precision", "access":"readonly", "value":)"));
     config.concat(_precision);
-    config.concat("}]}");
+    config.concat(F("}]}"));
     return config;
 }
 

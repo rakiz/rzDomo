@@ -159,13 +159,13 @@ uint RzServer::sendChartsConfig() {
 
         void visit(const char *id, const char *displayName, const char *unit) override {
             if (_count > 0) _server.sendContent(",");
-            _server.sendContent(R"({"id":")");
+            _server.sendContent(F(R"({"id":")"));
             _server.sendContent(id);
-            _server.sendContent(R"(","name":")");
+            _server.sendContent(F(R"(","name":")"));
             _server.sendContent(displayName);
-            _server.sendContent(R"(","unit":")");
+            _server.sendContent(F(R"(","unit":")"));
             _server.sendContent(unit);
-            _server.sendContent("\"}");
+            _server.sendContent(F("\"}"));
             _count++;
         }
 
@@ -233,8 +233,8 @@ uint RzServer::sendComponentConfig() {
         virtual ~ConfigVisitor() = default;
 
         void visit(const String &jsonConfig) override {
-            if (jsonConfig.length() > 0) {
-                Serial.println(jsonConfig);
+            if (!jsonConfig.isEmpty()) {
+                //Serial.println(jsonConfig);
                 if (_count > 0) _server.sendContent(",");
                 _server.sendContent(jsonConfig);
                 _count++;

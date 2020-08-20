@@ -49,13 +49,13 @@ String RzMemory::getJsonConfig() {
     String config;
     config.reserve(2048); // TODO: verify this
 
-    config.concat(R"({"id":")");
+    config.concat(F(R"({"id":")"));
     config.concat(getId());
-    config.concat(R"(","title":")");
+    config.concat(F(R"(","title":")"));
     config.concat(getDisplayName());
-    config.concat(R"(","parameters": [)");
+    config.concat(F(R"(","parameters": [)"));
     config.concat(RzSensor::getJsonConfig());
-    config.concat("]}");
+    config.concat(F("]}"));
 
     return config;
 }

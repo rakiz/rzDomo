@@ -189,33 +189,33 @@ const char *RzWifi::getPrefix() {
 String RzWifi::getJsonConfig() {
     String config;
     config.reserve(1024); // Do we need an id?
-    config.concat(R"({"id":")");
+    config.concat(F(R"({"id":")"));
     config.concat(getId());
-    config.concat(R"(","title":")");
+    config.concat(F(R"(","title":")"));
     config.concat(getDisplayName());
-    config.concat(R"(","parameters": [)");
+    config.concat(F(R"(","parameters": [)"));
 
     // Wifi config
-    config.concat(R"({"id":"wifi","title":"Wifi","parameters": [)");
-    config.concat(R"({"name": "Dns Name","id": "dnsName","value":")");
+    config.concat(F(R"({"id":"wifi","title":"Wifi","parameters": [)"));
+    config.concat(F(R"({"name": "Dns Name","id": "dnsName","value":")"));
     config.concat(_dnsName);
-    config.concat(R"lit("},{"name": "SSID","id": "ssid","value":")lit");
+    config.concat(F(R"lit("},{"name": "SSID","id": "ssid","value":")lit"));
     config.concat(_ssid);
-    config.concat(R"("},{"name": "Password","id": "password","value":")");
+    config.concat(F(R"("},{"name": "Password","id": "password","value":")"));
     config.concat(_password);
-    config.concat(R"("}]})");
+    config.concat(F(R"("}]})"));
 
     // NTP configuration
-    config.concat(R"(,{"id":"ntp","title":"Network Synchronized Time","parameters": [)");
-    config.concat(R"({"name": "Pool Server Name","id": "poolServerName","value":")");
+    config.concat(F(R"(,{"id":"ntp","title":"Network Synchronized Time","parameters": [)"));
+    config.concat(F(R"({"name": "Pool Server Name","id": "poolServerName","value":")"));
     config.concat(_poolServerName);
-    config.concat(R"lit("},{"name": "Time Offset (hours)","id": "_timeOffset","value":)lit");
+    config.concat(F(R"lit("},{"name": "Time Offset (hours)","id": "timeOffset","value":)lit"));
     config.concat(_timeOffset);
-    config.concat(R"lit(},{"name": "Update Interval (ms)","id": "updateInterval","value":)lit");
+    config.concat(F(R"lit(},{"name": "Update Interval (ms)","id": "updateInterval","value":)lit"));
     config.concat(_updateInterval);
-    config.concat(R"(}]})");
+    config.concat(F(R"(}]})"));
 
-    config.concat(R"(]})");
+    config.concat(F(R"(]})"));
     return config;
 }
 

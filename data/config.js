@@ -1,5 +1,6 @@
 const config_api_url = "http://192.168.1.56/api/config";
 
+/*
 let rzConfig =
     [
         {
@@ -101,7 +102,7 @@ let rzConfig =
             ]
         }
     ];
-
+*/
 window.onload = function() {
     const myHeaders = new Headers();
     const myInit = {method: 'GET', headers: myHeaders, mode: 'cors', cache: 'default'};
@@ -156,19 +157,19 @@ function htmlSubComponent(subComponent) {
     console.log("htmlSubComponent ");
     return `
             <div class="siimple-grid-row siimple--ml-0">
-                <div class="siimple-h5">${subComponent.title}</div>
-                ${subComponent.parameters.map(p => htmlFieldSingleValue(p)).join("")}
+                <div class="siimple-h5">${subComponent.title}  (${subComponent.id})</div>
+                ${subComponent.parameters.map(p => htmlFieldSingleValue(subComponent.id, p)).join("")}
             </div>
         `;
 
 }
 
-function htmlFieldSingleValue(parameter) {
+function htmlFieldSingleValue(id, parameter) {
     return `
             <div class="siimple-grid-col siimple-grid-col--3 siimple--py-0">
                 <div class="siimple-field">
                     <div class="siimple-field-label">${parameter.name}</div>
-                    <input name="${parameter.id}" type="text" class="siimple-input siimple-input--fluid" value="${parameter.value}" ${parameter.access}>
+                    <input name="${id}.${parameter.id}" type="text" class="siimple-input siimple-input--fluid" value="${parameter.value}" ${parameter.access}>
                 </div>
             </div>
         `;

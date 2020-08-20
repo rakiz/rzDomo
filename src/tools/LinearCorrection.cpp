@@ -21,16 +21,16 @@ void LinearCorrection::displayConfig() const {
 String LinearCorrection::getJsonConfig() {
     String config;
     config.reserve(300); // Do we need an id?
-    config.concat(R"({"id":"lincor", "title":"Linear correction","parameters": [)");
-    config.concat(R"({"name": "Reference low","id": "refLow","value":)");
+    config.concat(F(R"({"id":"lincor", "title":"Linear correction","parameters": [)"));
+    config.concat(F(R"({"name": "Reference low","id": "refLow","value":)"));
     config.concat(_refLow);
-    config.concat(R"(},{"name": "Measured low","id": "rawLow","value":)");
+    config.concat(F(R"(},{"name": "Measured low","id": "rawLow","value":)"));
     config.concat(_rawLow);
-    config.concat(R"(},{"name": "Reference high","id": "refHigh","value":)");
+    config.concat(F(R"(},{"name": "Reference high","id": "refHigh","value":)"));
     config.concat(_refHigh);
-    config.concat(R"(},{"name": "Measured high","id": "rawHigh","value":)");
+    config.concat(F(R"(},{"name": "Measured high","id": "rawHigh","value":)"));
     config.concat(_rawHigh);
-    config.concat(R"(}]})");
+    config.concat(F(R"(}]})"));
     return config;
 }
 

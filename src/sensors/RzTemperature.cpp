@@ -145,22 +145,22 @@ String RzTemperature::getJsonConfig() {
     String config;
     config.reserve(2048);
 
-    config.concat(R"({"id":")");
+    config.concat(F(R"({"id":")"));
     config.concat(getId());
-    config.concat(R"(","title":")");
+    config.concat(F(R"(","title":")"));
     config.concat(getDisplayName());
-    config.concat(R"(","parameters": [)");
+    config.concat(F(R"(","parameters": [)"));
     config.concat(RzSensor::getJsonConfig());
 
     // linear correction
-    config.concat(R"(,)");
+    config.concat(F(R"(,)"));
     config.concat(_linCor->getJsonConfig());
 
     // multisampling
-    config.concat(R"(,)");
+    config.concat(F(R"(,)"));
     config.concat(_multisampling->getJsonConfig());
 
-    config.concat(R"(]})");
+    config.concat(F(R"(]})"));
 
     return config;
 }

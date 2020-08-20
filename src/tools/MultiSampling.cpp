@@ -74,16 +74,16 @@ void MultiSampling::displayConfig() const {
 String MultiSampling::getJsonConfig() {
     String config;
     config.reserve(340); // Do we need an id?
-    config.concat(R"({"id":"multisampling","title":"Multi sampling","parameters": [)");
-    config.concat(R"({"name": "Sampling number","id": "size","value":)");
+    config.concat(F(R"({"id":"multisampling","title":"Multi sampling","parameters": [)"));
+    config.concat(F(R"({"name": "Sampling number","id": "size","value":)"));
     config.concat(_size);
-    config.concat(R"(},{"name": "Remove extremes","id": "extremes","value":)");
+    config.concat(F(R"(},{"name": "Remove extremes","id": "extremes","value":)"));
     config.concat(_extremes);
-    config.concat(R"lit(},{"name": "Delay between samples (ms)","id": "delaySampling","value":)lit");
+    config.concat(F(R"lit(},{"name": "Delay between samples (ms)","id": "delaySampling","value":)lit"));
     config.concat(_delaySampling);
-    config.concat(R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit");
+    config.concat(F(R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit"));
     config.concat(_delayMeasure);
-    config.concat(R"(}]})");
+    config.concat(F(R"(}]})"));
     return config;
 }
 
