@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "LinearCorrection.h"
+#include "tools/Tools.h"
 
 LinearCorrection::LinearCorrection(const char *id, //
                                    float refLow, float refHigh, float rawLow, float rawHigh) :
@@ -18,19 +19,23 @@ void LinearCorrection::displayConfig() const {
                   _refLow, _rawLow, _refHigh, _rawHigh);
 }
 
-String LinearCorrection::getJsonConfig() {
-    String config;
-    config.reserve(300); // Do we need an id?
-    config.concat(F(R"({"id":"lincor", "title":"Linear correction","parameters": [)"));
-    config.concat(F(R"({"name": "Reference low","id": "refLow","value":)"));
-    config.concat(_refLow);
-    config.concat(F(R"(},{"name": "Measured low","id": "rawLow","value":)"));
-    config.concat(_rawLow);
-    config.concat(F(R"(},{"name": "Reference high","id": "refHigh","value":)"));
-    config.concat(_refHigh);
-    config.concat(F(R"(},{"name": "Measured high","id": "rawHigh","value":)"));
-    config.concat(_rawHigh);
-    config.concat(F(R"(}]})"));
+#define LINEAR_CORRECTION_CONFIG_MAX_SIZE 512
+
+const char *LinearCorrection::getJsonConfig() {
+    char *config = new char[LINEAR_CORRECTION_CONFIG_MAX_SIZE+1];
+    *config = 0;
+
+    myTools::stringConcat(config, F(R"({"id":"lincor", "title":"Linear correction","parameters": [)"),  LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"({"name": "Reference low","id": "refLow","value":)"), LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _refLow, LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(},{"name": "Measured low","id": "rawLow","value":)"), LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _rawLow, LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(},{"name": "Reference high","id": "refHigh","value":)"), LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _refHigh, LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(},{"name": "Measured high","id": "rawHigh","value":)"), LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _rawHigh, LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(}]})"), LINEAR_CORRECTION_CONFIG_MAX_SIZE);
+
     return config;
 }
 

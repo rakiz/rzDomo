@@ -20,7 +20,7 @@ public:
 
     const char *getPrefix() override;
 
-    String getJsonConfig() override;
+    const char *getJsonConfig() override;
 
     void loadConfiguration() override;
 

@@ -21,7 +21,7 @@ public:
     void displayConfig() const;
 
     // -=[ RzConfigurable ]=---------------------------
-    String getJsonConfig() override;
+    const char *getJsonConfig() override;
 
     void loadConfiguration() override;
 

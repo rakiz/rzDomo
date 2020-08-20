@@ -31,10 +31,10 @@ void RzServer::setup() {
             _server->send(404, CONTENT_TYPE_TEXT,
                           F("404: Not Found")); // otherwise, respond with a 404 (Not Found) error
         } else {
-            String contentType = getContentType(path);             // Get the MIME type
+            String contentType = myTools::getContentType(path);             // Get the MIME type
             size_t sent = _server->streamFile(file, contentType);    // Send it to the client
             file.close();                                          // Close the file again
-            Serial.printf("File sent: %s, size: %s (%s)\r\n", path.c_str(), formatBytes(sent).c_str(),
+            Serial.printf("File sent: %s, size: %s (%s)\r\n", path.c_str(), myTools::formatBytes(sent).c_str(),
                           contentType.c_str());
         }
     });
@@ -232,13 +232,10 @@ uint RzServer::sendComponentConfig() {
 
         virtual ~ConfigVisitor() = default;
 
-        void visit(const String &jsonConfig) override {
-            if (!jsonConfig.isEmpty()) {
-                //Serial.println(jsonConfig);
-                if (_count > 0) _server.sendContent(",");
-                _server.sendContent(jsonConfig);
-                _count++;
-            }
+        void visit(const char *jsonConfig) override {
+            if (_count > 0) _server.sendContent(",");
+            _server.sendContent(jsonConfig);
+            _count++;
         }
 
         uint getCount() const {
@@ -274,8 +271,10 @@ const char *RzServer::getPrefix() {
     return "Web";
 }
 
-String RzServer::getJsonConfig() {
-    return String();
+const char *RzServer::getJsonConfig() {
+    char *config = new char[1];
+    *config = 0;
+    return config;
 }
 
 void RzServer::loadConfiguration() {

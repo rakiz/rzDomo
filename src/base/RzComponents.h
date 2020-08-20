@@ -27,7 +27,7 @@ public:
 
 class RzConfigurableVisitor {
 public:
-    virtual void visit(const String &jsonConfig) = 0;
+    virtual void visit(const char *jsonConfig) = 0;
 };
 
 

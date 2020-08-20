@@ -56,7 +56,7 @@ public:
 
     void saveConfiguration() override;
 
-    String getJsonConfig() override;
+    const char *getJsonConfig() override;
 
     const char *getId() override;
 

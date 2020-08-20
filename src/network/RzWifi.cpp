@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "RzWifi.h"
+#include "tools/Tools.h"
 
 RzWifi::RzWifi() {
     RzWifi::loadConfiguration();
@@ -186,36 +187,40 @@ const char *RzWifi::getPrefix() {
     return "Network";
 }
 
-String RzWifi::getJsonConfig() {
-    String config;
-    config.reserve(1024); // Do we need an id?
-    config.concat(F(R"({"id":")"));
-    config.concat(getId());
-    config.concat(F(R"(","title":")"));
-    config.concat(getDisplayName());
-    config.concat(F(R"(","parameters": [)"));
+#define NETWORK_CONFIG_MAX_SIZE 768
+
+const char *RzWifi::getJsonConfig() {
+    char *config = new char[NETWORK_CONFIG_MAX_SIZE+1];
+    *config = 0;
+
+    myTools::stringConcat(config, F(R"({"id":")"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, getId(), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(","title":")"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, getDisplayName(), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(","parameters": [)"), NETWORK_CONFIG_MAX_SIZE);
 
     // Wifi config
-    config.concat(F(R"({"id":"wifi","title":"Wifi","parameters": [)"));
-    config.concat(F(R"({"name": "Dns Name","id": "dnsName","value":")"));
-    config.concat(_dnsName);
-    config.concat(F(R"lit("},{"name": "SSID","id": "ssid","value":")lit"));
-    config.concat(_ssid);
-    config.concat(F(R"("},{"name": "Password","id": "password","value":")"));
-    config.concat(_password);
-    config.concat(F(R"("}]})"));
+    myTools::stringConcat(config, F(R"({"id":"wifi","title":"Wifi","parameters": [)"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"({"name": "Dns Name","id": "dnsName","value":")"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _dnsName, NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"lit("},{"name": "SSID","id": "ssid","value":")lit"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _ssid, NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"("},{"name": "Password","id": "password","value":")"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _password, NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"("}]})"), NETWORK_CONFIG_MAX_SIZE);
 
     // NTP configuration
-    config.concat(F(R"(,{"id":"ntp","title":"Network Synchronized Time","parameters": [)"));
-    config.concat(F(R"({"name": "Pool Server Name","id": "poolServerName","value":")"));
-    config.concat(_poolServerName);
-    config.concat(F(R"lit("},{"name": "Time Offset (hours)","id": "timeOffset","value":)lit"));
-    config.concat(_timeOffset);
-    config.concat(F(R"lit(},{"name": "Update Interval (ms)","id": "updateInterval","value":)lit"));
-    config.concat(_updateInterval);
-    config.concat(F(R"(}]})"));
+    myTools::stringConcat(config, F(R"(,{"id":"ntp","title":"Network Synchronized Time","parameters": [)"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"({"name": "Pool Server Name","id": "poolServerName","value":")"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _poolServerName, NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"lit("},{"name": "Time Offset (hours)","id": "timeOffset","value":)lit"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _timeOffset, NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"lit(},{"name": "Update Interval (ms)","id": "updateInterval","value":)lit"), NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _updateInterval, NETWORK_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(}]})"), NETWORK_CONFIG_MAX_SIZE);
 
-    config.concat(F(R"(]})"));
+    myTools::stringConcat(config, F(R"(]})"), NETWORK_CONFIG_MAX_SIZE);
+
     return config;
 }
 

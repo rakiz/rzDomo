@@ -18,7 +18,7 @@ public:
 
     void displayConfig() const;
 
-    String getJsonConfig() override;
+    const char *getJsonConfig() override;
 
     void loadConfiguration() override;
 

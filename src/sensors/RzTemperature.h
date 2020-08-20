@@ -21,7 +21,7 @@ public:
 
     void loop(timeMs referenceTime) override;
 
-    String getJsonConfig() override;
+    const char *getJsonConfig() override;
 
     ~RzTemperature() override;
 

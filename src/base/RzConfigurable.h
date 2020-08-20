@@ -9,7 +9,12 @@ using timeMs = ulong;
 
 class RzConfigurable : public RzIdentifiable {
 public:
-    virtual String getJsonConfig() = 0;
+    /**
+     * Get the component configuration (as JSON format)
+     * BEWARE to cleanup the memory afterwards !!
+     * @return const char*
+     */
+    virtual const char *getJsonConfig() = 0;
 
     virtual void loadConfiguration() = 0;
 

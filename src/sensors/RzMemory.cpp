@@ -1,4 +1,5 @@
 #include "RzMemory.h"
+#include "tools/Tools.h"
 
 RzMemory::RzMemory() : RzSensor("mem", "Bytes", 0, 240, 60 * 60 * 1000, 1, 1000) {
     RzMemory::loadConfiguration();
@@ -45,17 +46,21 @@ void RzMemory::saveConfiguration() {
     RzSensor::saveConfiguration();
 }
 
-String RzMemory::getJsonConfig() {
-    String config;
-    config.reserve(2048); // TODO: verify this
+#define MEMORY_CONFIG_MAX_SIZE 512
 
-    config.concat(F(R"({"id":")"));
-    config.concat(getId());
-    config.concat(F(R"(","title":")"));
-    config.concat(getDisplayName());
-    config.concat(F(R"(","parameters": [)"));
-    config.concat(RzSensor::getJsonConfig());
-    config.concat(F("]}"));
+const char *RzMemory::getJsonConfig() {
+    char *config = new char[MEMORY_CONFIG_MAX_SIZE+1];
+    *config = 0;
+
+    myTools::stringConcat(config, F(R"({"id":")"), MEMORY_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, getId(), MEMORY_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(","title":")"), MEMORY_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, getDisplayName(), MEMORY_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(","parameters": [)"), MEMORY_CONFIG_MAX_SIZE);
+    const char *sensorConfig = RzSensor::getJsonConfig();
+    myTools::stringConcat(config, sensorConfig, MEMORY_CONFIG_MAX_SIZE);
+    delete[] sensorConfig;
+    myTools::stringConcat(config, F("]}"), MEMORY_CONFIG_MAX_SIZE);
 
     return config;
 }

@@ -17,13 +17,24 @@
 #define CONTENT_TYPE_JPEG           F("image/jpeg")
 #define CONTENT_TYPE_ICON           F("image/x-icon")
 
-String getContentType(const String &_filename);
+namespace myTools {
+    String getContentType(const String &_filename);
 
-String formatBytes(size_t _bytes);
+    String formatBytes(size_t _bytes);
 
-template<typename Base, typename T>
-inline bool instanceof(const T *) {
-    return std::is_base_of<Base, T>::value;
+    bool stringConcat(char *dest, const __FlashStringHelper *str, unsigned int destMaxLength);
+    bool stringConcat(char *dest, const char *cstr, unsigned int destMaxLength);
+    bool stringConcat(char *dest, float num, unsigned int destMaxLength);
+    bool stringConcat(char *dest, float num, unsigned int destMaxLength);
+    bool stringConcat(char *dest, unsigned char num, unsigned int destMaxLength);
+    bool stringConcat(char *dest, int num, unsigned int destMaxLength);
+    bool stringConcat(char *dest, unsigned int num, unsigned int destMaxLength);
+    bool stringConcat(char *dest, long num, unsigned int destMaxLength);
+    bool stringConcat(char *dest, unsigned long num, unsigned int destMaxLength);
+
+    template<typename Base, typename T>
+    inline bool instanceof(const T *) {
+        return std::is_base_of<Base, T>::value;
+    }
 }
-
 #endif

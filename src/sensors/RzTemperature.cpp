@@ -1,4 +1,5 @@
 #include "RzTemperature.h"
+#include "tools/Tools.h"
 
 RzTemperature::RzTemperature(uint8_t pin, const char *id, const char *displayName) :
         RzSensor(id, "°C", 2, 240, 60 * 60 * 1000, 1, 20),
@@ -141,26 +142,34 @@ void RzTemperature::printAddress() {
     }
 }
 
-String RzTemperature::getJsonConfig() {
-    String config;
-    config.reserve(2048);
+#define TEMPERATURE_CONFIG_MAX_SIZE 1280
 
-    config.concat(F(R"({"id":")"));
-    config.concat(getId());
-    config.concat(F(R"(","title":")"));
-    config.concat(getDisplayName());
-    config.concat(F(R"(","parameters": [)"));
-    config.concat(RzSensor::getJsonConfig());
+const char *RzTemperature::getJsonConfig() {
+    char *config = new char[TEMPERATURE_CONFIG_MAX_SIZE+1];
+    *config = 0;
+
+    myTools::stringConcat(config, F(R"({"id":")"), TEMPERATURE_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, getId(), TEMPERATURE_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(","title":")"), TEMPERATURE_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, getDisplayName(), TEMPERATURE_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(","parameters": [)"), TEMPERATURE_CONFIG_MAX_SIZE);
+    const char *sensorConfig = RzSensor::getJsonConfig();
+    myTools::stringConcat(config, sensorConfig, TEMPERATURE_CONFIG_MAX_SIZE);
+    delete[] sensorConfig;
 
     // linear correction
-    config.concat(F(R"(,)"));
-    config.concat(_linCor->getJsonConfig());
+    myTools::stringConcat(config, F(R"(,)"), TEMPERATURE_CONFIG_MAX_SIZE);
+    const char *linCorConfig = _linCor->getJsonConfig();
+    myTools::stringConcat(config, linCorConfig, TEMPERATURE_CONFIG_MAX_SIZE);
+    delete[] linCorConfig;
 
     // multisampling
-    config.concat(F(R"(,)"));
-    config.concat(_multisampling->getJsonConfig());
+    myTools::stringConcat(config, F(R"(,)"), TEMPERATURE_CONFIG_MAX_SIZE);
+    const char *multisamplingConfig = _multisampling->getJsonConfig();
+    myTools::stringConcat(config, multisamplingConfig, TEMPERATURE_CONFIG_MAX_SIZE);
+    delete[] multisamplingConfig;
 
-    config.concat(F(R"(]})"));
+    myTools::stringConcat(config, F(R"(]})"), TEMPERATURE_CONFIG_MAX_SIZE);
 
     return config;
 }

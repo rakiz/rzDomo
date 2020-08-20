@@ -18,8 +18,7 @@
  * https://github.com/compuphase/minIni
  * https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266mDNS/examples/OTA-mDNS-LittleFS/OTA-mDNS-SPIFFS.ino
  * https://www.megunolink.com/documentation/connecting/mdns-browser/ <- could be used to connect ESP together (mdns is not working from browser)
- * String error = String();
- * error += F("!NO_LEADING_SLASH! ");
+ * https://majenko.co.uk/blog/evils-arduino-strings
  */
 #include <Arduino.h>
 

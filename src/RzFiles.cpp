@@ -14,8 +14,8 @@ void RzFiles::setup() { // Start the SPIFFS and list all contents
 
         Serial.printf(
                 "FS Info: \r\n\t totalBytes: %s\r\n\t usedBytes: %s\r\n\t blockSize: %s\r\n\t pageSize: %s\r\n\t maxOpenFiles: %zu\r\n\t maxPathLength: %zu\r\n",
-                formatBytes(fs_info.totalBytes).c_str(), formatBytes(fs_info.usedBytes).c_str(),
-                formatBytes(fs_info.blockSize).c_str(), formatBytes(fs_info.pageSize).c_str(),
+                myTools::formatBytes(fs_info.totalBytes).c_str(), myTools::formatBytes(fs_info.usedBytes).c_str(),
+                myTools::formatBytes(fs_info.blockSize).c_str(), myTools::formatBytes(fs_info.pageSize).c_str(),
                 fs_info.maxOpenFiles, fs_info.maxPathLength);
     }
 
@@ -25,13 +25,13 @@ void RzFiles::setup() { // Start the SPIFFS and list all contents
         Dir dir = SPIFFS.openDir("/");
         while (dir.next()) {                      // List the file system contents
             String fileName = dir.fileName();
-            String contentType = getContentType(fileName);
+            String contentType = myTools::getContentType(fileName);
             size_t fileSize = dir.fileSize();
             time_t creation = dir.fileCreationTime();
             struct tm *timeInfo = localtime(&creation);
             strftime(buffer, 80, "%F %T", timeInfo);
             Serial.printf("\tFS File: %s, created: %s, size: %s (%s)\r\n", fileName.c_str(), buffer,
-                          formatBytes(fileSize).c_str(), contentType.c_str());
+                          myTools::formatBytes(fileSize).c_str(), contentType.c_str());
         }
         Serial.println();
     }
@@ -53,8 +53,10 @@ const char *RzFiles::getPrefix() {
     return "Files";
 }
 
-String RzFiles::getJsonConfig() {
-    return String();
+const char *RzFiles::getJsonConfig() {
+    char *config = new char[1];
+    *config = 0;
+    return config;
 }
 
 void RzFiles::loadConfiguration() {

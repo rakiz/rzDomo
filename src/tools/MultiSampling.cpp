@@ -1,5 +1,5 @@
 #include "MultiSampling.h"
-
+#include "tools/Tools.h"
 
 MultiSampling::MultiSampling(const char *id, //
                              int nbSampling, int extremes, ulong delaySampling, ulong delayMeasure) :
@@ -71,19 +71,23 @@ void MultiSampling::displayConfig() const {
             _size, _extremes, _delayMeasure, _delaySampling);
 }
 
-String MultiSampling::getJsonConfig() {
-    String config;
-    config.reserve(340); // Do we need an id?
-    config.concat(F(R"({"id":"multisampling","title":"Multi sampling","parameters": [)"));
-    config.concat(F(R"({"name": "Sampling number","id": "size","value":)"));
-    config.concat(_size);
-    config.concat(F(R"(},{"name": "Remove extremes","id": "extremes","value":)"));
-    config.concat(_extremes);
-    config.concat(F(R"lit(},{"name": "Delay between samples (ms)","id": "delaySampling","value":)lit"));
-    config.concat(_delaySampling);
-    config.concat(F(R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit"));
-    config.concat(_delayMeasure);
-    config.concat(F(R"(}]})"));
+#define MULTISAMPLING_CONFIG_MAX_SIZE 512
+
+const char *MultiSampling::getJsonConfig() {
+    char *config = new char[MULTISAMPLING_CONFIG_MAX_SIZE+1];
+    *config = 0;
+
+    myTools::stringConcat(config, F(R"({"id":"multisampling","title":"Multi sampling","parameters": [)"), MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"({"name": "Sampling number","id": "size","value":)"), MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _size, MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(},{"name": "Remove extremes","id": "extremes","value":)"), MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _extremes, MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"lit(},{"name": "Delay between samples (ms)","id": "delaySampling","value":)lit"), MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _delaySampling, MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"lit(},{"name": "Delay between measures (ms)","id": "delayMeasures","value":)lit"), MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _delayMeasure, MULTISAMPLING_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(}]})"), MULTISAMPLING_CONFIG_MAX_SIZE);
+
     return config;
 }
 

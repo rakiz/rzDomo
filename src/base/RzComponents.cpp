@@ -8,7 +8,7 @@ void RzComponents::add(RzComponent *component) {
 
 void RzComponents::visitSensorValues(RzSensorValueVisitor &visitor) {
     for (auto &_component : _components) {
-        if (instanceof<RzSensor>(_component)) {
+        if (myTools::instanceof<RzSensor>(_component)) {
             auto *sensor = (RzSensor *) _component;
             if (visitor.onTime(0)) {   // FIXME: I need to get the time
                 visitor.onValue(sensor->RzComponent::getId(), 0,
@@ -20,7 +20,7 @@ void RzComponents::visitSensorValues(RzSensorValueVisitor &visitor) {
 
 void RzComponents::visitSensorChartConfig(RzSensorChartConfigVisitor &visitor) {
     for (auto &_component : _components) {
-        if (instanceof<RzSensor>(_component)) {
+        if (myTools::instanceof<RzSensor>(_component)) {
             auto *sensor = (RzSensor *) _component;
             visitor.visit(sensor->RzComponent::getId(), sensor->RzComponent::getDisplayName(), sensor->getUnit());
         }
@@ -29,13 +29,15 @@ void RzComponents::visitSensorChartConfig(RzSensorChartConfigVisitor &visitor) {
 
 void RzComponents::visitConfigurable(RzConfigurableVisitor &visitor) {
     for (auto &_component : _components) {
-        if (instanceof<RzConfigurable>(_component)) {
+        if (myTools::instanceof<RzConfigurable>(_component)) {
             auto *configurable = (RzConfigurable *) _component;
-            const String &jsonConfig = configurable->getJsonConfig();
-            if (!jsonConfig.isEmpty()) {
-                Serial.printf("Component %s configurable.\r\n", _component->getDisplayName());
+            const char *jsonConfig = configurable->getJsonConfig();
+            size_t len = strlen(jsonConfig);
+            if (len > 0) {
+                Serial.printf("Component %s configurable (config size=%d).\r\n", _component->getDisplayName(), len);
                 visitor.visit(jsonConfig);
             }
+            delete[] jsonConfig;
         }
     }
 }

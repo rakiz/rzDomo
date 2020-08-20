@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "base/RzSensor.h"
+#include "tools/Tools.h"
 
 RzSensor::RzSensor(const char *id, const char *unit, uint precision,
                    uint maxSize, ulong maxDelayValues, uint maxComparedValues, uint ignoredDiff) :
@@ -86,21 +87,25 @@ void RzSensor::saveConfiguration() {
     file.close();
 }
 
-String RzSensor::getJsonConfig() {
-    String config;
-    config.reserve(512); // Do we need an id?
-    config.concat(F(R"({"id":"sensor","title":"Sensor","parameters": [)"));
-    config.concat(F(R"({"name": "Max kept values","id": "maxSize","value":)"));
-    config.concat(_maxSize);
-    config.concat(F(R"lit(},{"name": "Delay between measures (ms)","id": "maxDelayValues","value":)lit"));
-    config.concat(_maxDelayValues);
-    config.concat(F(R"(},{"name": "Max compared values","id": "maxComparedValues","value":)"));
-    config.concat(_maxComparedValues);
-    config.concat(F(R"(},{"name": "Ignored difference","id": "ignoredDiff","value":)"));
-    config.concat(_ignoredDiff);
-    config.concat(F(R"(},{"name": "Precision","id": "precision", "access":"readonly", "value":)"));
-    config.concat(_precision);
-    config.concat(F("}]}"));
+#define SENSOR_CONFIG_MAX_SIZE 512
+
+const char *RzSensor::getJsonConfig() {
+    char *config=new char[SENSOR_CONFIG_MAX_SIZE+1];
+    *config = 0;
+
+    myTools::stringConcat(config, F(R"({"id":"sensor","title":"Sensor","parameters": [)"), SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"({"name": "Max kept values","id": "maxSize","value":)"), SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _maxSize, SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"lit(},{"name": "Delay between measures (ms)","id": "maxDelayValues","value":)lit"), SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _maxDelayValues, SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(},{"name": "Max compared values","id": "maxComparedValues","value":)"), SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _maxComparedValues, SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(},{"name": "Ignored difference","id": "ignoredDiff","value":)"), SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _ignoredDiff, SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F(R"(},{"name": "Precision","id": "precision", "access":"readonly", "value":)"), SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, _precision, SENSOR_CONFIG_MAX_SIZE);
+    myTools::stringConcat(config, F("}]}"), SENSOR_CONFIG_MAX_SIZE);
+
     return config;
 }
 
